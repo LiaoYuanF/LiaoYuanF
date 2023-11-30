@@ -444,43 +444,6 @@
             
         
         <article class="index-post">
-            <a class="abstract-title" href="/2023/11/30/C++%E7%9A%84%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B/">
-                
-                <span class="abstract-title-text">[Untitled Post]</span>
-            </a>
-            <div class="abstract-content">
-                
-无锁编程真的存在吗？
-
-1 无锁编程的背景1.1 需要互斥锁的原因在传统的多线程、多进程的编程模式中，互斥锁是一种不可或缺的工具。在本质上，可以归结为两种原因：
-
-需要安全地并发访问共享资源。
-需要在共享资源上控制访问顺序。
-
-它们都将确保代码在的某些线程不安全部分不会并发执行或者以错误的顺序执行。
-1.2 互斥锁存在的问题1.2.1 互斥锁的本质互斥锁本质上作为一个状态值，本身和一个共享资源绑定在一起，逻辑上可以简单将互斥锁理解为如下结构。
-12345struct mutex_lock&#123;	atomic_t state;	object owner;	queue waiting...
-            </div>
-            <!-- read more -->
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2023/11/30">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2023/11/30</span>
-                </div>
-                <!-- tags -->
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-        
-        <article class="index-post">
             <a class="abstract-title" href="/2023/11/30/test-article/">
                 
                 <span class="abstract-title-text">test_article</span>
@@ -716,14 +679,7 @@ Run server1$ hexo ...
         
         
         
-        
-        
-        
-        
-        
     
-        
-        
         
         
     
@@ -732,7 +688,7 @@ Run server1$ hexo ...
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 3
+        Total : 2
         </div>
         <!-- search  -->
         
@@ -749,37 +705,13 @@ Run server1$ hexo ...
         
         <li class="archive-post-item">
             <span class="archive-post-date">11/30</span>
-            <a class="archive-post-title" href="/2023/11/30/hello-world/">Hello World</a>
+            <a class="archive-post-title" href="/2023/11/30/test-article/">test_article</a>
         </li>
     
-        
-            
-            
-                
-                </ul>
-            
-            <div class="archive-year"> Invalid date </div>
-            <ul class="year-list">
-            
-        
-        <li class="archive-post-item">
-            <span class="archive-post-date">Invalid date</span>
-            <a class="archive-post-title" href="/2023/11/30/C++%E7%9A%84%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B/">[Untitled Post]</a>
-        </li>
-    
-        
-            
-            
-                
-                </ul>
-            
-            <div class="archive-year"> 2023 </div>
-            <ul class="year-list">
-            
         
         <li class="archive-post-item">
             <span class="archive-post-date">11/30</span>
-            <a class="archive-post-title" href="/2023/11/30/test-article/">test_article</a>
+            <a class="archive-post-title" href="/2023/11/30/hello-world/">Hello World</a>
         </li>
     
     </div>
