@@ -5,7 +5,7 @@ date: 2023-12-01 16:44:29
 ---
 
 ## 教育背景
-**西安交通大学** Computer Science Bachelor
+**西安交通大学** Bachelor
 　　　　
 ## 工作经历
 
