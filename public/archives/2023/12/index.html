@@ -454,6 +454,7 @@
         
         
             
+            
         
         <article class="index-post">
             <a class="abstract-title" href="/2023/12/03/Cpp-basics-3/">
@@ -461,9 +462,16 @@
                 <span class="abstract-title-text">Cpp-basics-3</span>
             </a>
             <div class="abstract-content">
-                
+                <h2 id="内存分类"><a href="#内存分类" class="headerlink" title="内存分类"></a>内存分类</h2><p><img src="/images/Cpp-Basics-3-1.png" alt="image.png"></p>
             </div>
             <!-- read more -->
+            
+                <div class="abstract-read-more-button">
+                    <a href="/2023/12/03/Cpp-basics-3/">
+                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </div>
             
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -471,6 +479,14 @@
                     <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2023/12/03</span>
                 </div>
                 <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Cpp">Cpp</a>
+    
+</div>
+
                 
             </div>
         </article>
@@ -481,6 +497,7 @@
         
         
             
+            
         
         <article class="index-post">
             <a class="abstract-title" href="/2023/12/03/Cpp-basics-2/">
@@ -488,9 +505,22 @@
                 <span class="abstract-title-text">Cpp-basics-2</span>
             </a>
             <div class="abstract-content">
-                
+                <h2 id="main函数执行前过程"><a href="#main函数执行前过程" class="headerlink" title="main函数执行前过程"></a>main函数执行前过程</h2><ol>
+<li>设置栈指针</li>
+<li>初始化静态static变量和global全局变量，即.data段的内容</li>
+<li>将未初始化部分的全局变量赋初值：数值型short，int，long等为0，bool为FALSE，指针为NULL等等，即.bss段的内容</li>
+<li>全局对象初始化，在main之前调用构造函数</li>
+<li>将main函数的参数argc，argv等传递给main函数，真正运行main函数</li>
+</ol>
             </div>
             <!-- read more -->
+            
+                <div class="abstract-read-more-button">
+                    <a href="/2023/12/03/Cpp-basics-2/">
+                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </div>
             
             <div class="abstract-post-meta">
                 <!-- date -->
@@ -498,6 +528,14 @@
                     <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2023/12/03</span>
                 </div>
                 <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Cpp">Cpp</a>
+    
+</div>
+
                 
             </div>
         </article>
