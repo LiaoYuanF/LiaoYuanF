@@ -122,7 +122,7 @@ jsonContent:
     comments: false
     link: false
     permalink: true
-    excerpt: true
+    excerpt: false
     categories: true
     tags: true
 
@@ -131,4 +131,4 @@ excerpt:
   depth: 2
   excerpt_excludes: []
   more_excludes: []
-  hideWholePostExcerpts: true
+  hideWholePostExcerpts: false
