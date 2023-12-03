@@ -4,6 +4,7 @@ date: 2023-12-03 22:13:24
 tags: Cpp
 abstract: Cpp中的一些基础概念
 ---
+本文是关于一些Cpp中一些基础概念的整理。
 ## main函数执行前过程
 1. 设置栈指针
 2. 初始化静态static变量和global全局变量，即.data段的内容

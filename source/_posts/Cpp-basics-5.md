@@ -3,6 +3,7 @@ title: Cpp-basics-5
 date: 2023-12-03 23:08:46
 tags: Cpp
 abstract: Cpp中的STL的基础知识
+本文是关于一些Cpp中STL的基础知识整理。
 ---
 ## STL组件
 ### 容器

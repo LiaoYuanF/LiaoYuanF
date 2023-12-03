@@ -4,6 +4,7 @@ date: 2023-12-03 22:13:30
 tags: Cpp
 abstract: Cpp中的内存模型
 ---
+本文是关于一些Cpp中内存模型的整理。
 ## 内存分类
 ![image.png](/images/Cpp-Basics-3-1.png)
 ### .text 代码区
