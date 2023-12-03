@@ -19,14 +19,17 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta property="og:type" content="article">
+    <meta name="description" content="main函数执行前过程 设置栈指针 初始化静态static变量和global全局变量，即.data段的内容 将未初始化部分的全局变量赋初值：数值型short，int，long等为0，bool为FALSE，指针为NULL等等，即.bss段的内容 全局对象初始化，在main之前调用构造函数 将main函数的参数argc，argv等传递给main函数，真正运行main函数">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Cpp-basics-2">
 <meta property="og:url" content="https://liaoyuanf.github.io/2023/12/03/Cpp-basics-2/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="main函数执行前过程 设置栈指针 初始化静态static变量和global全局变量，即.data段的内容 将未初始化部分的全局变量赋初值：数值型short，int，long等为0，bool为FALSE，指针为NULL等等，即.bss段的内容 全局对象初始化，在main之前调用构造函数 将main函数的参数argc，argv等传递给main函数，真正运行main函数">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-03T14:13:24.000Z">
-<meta property="article:modified_time" content="2023-12-03T14:13:24.538Z">
+<meta property="article:modified_time" content="2023-12-03T14:54:23.421Z">
 <meta property="article:author" content="Flynn">
+<meta property="article:tag" content="Cpp">
 <meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -324,6 +327,8 @@
                     <div class= post-intro-tags >
     
     
+        <a class="post-tag" href="javascript:void(0);" data-tags="Cpp">Cpp</a>
+    
 </div>
 
                 
@@ -487,7 +492,145 @@
             <div class="container container-unloaded">
                 <main class="main post-page">
     <article class="article-entry">
-        
+        <h2 id="main函数执行前过程"><a href="#main函数执行前过程" class="headerlink" title="main函数执行前过程"></a>main函数执行前过程</h2><ol>
+<li>设置栈指针</li>
+<li>初始化静态static变量和global全局变量，即.data段的内容</li>
+<li>将未初始化部分的全局变量赋初值：数值型short，int，long等为0，bool为FALSE，指针为NULL等等，即.bss段的内容</li>
+<li>全局对象初始化，在main之前调用构造函数</li>
+<li>将main函数的参数argc，argv等传递给main函数，真正运行main函数</li>
+</ol>
+<h2 id="普通函数调用过程"><a href="#普通函数调用过程" class="headerlink" title="普通函数调用过程"></a>普通函数调用过程</h2><ol>
+<li>设置栈指针，在栈中放入下一条指令的地址</li>
+<li>然后为形参和局部变量分配存储空间</li>
+<li>将实参的值复制给形参</li>
+<li>进行函数内操作</li>
+<li>return 语句返回时，从栈中回收形参和局部变量占用的存储空间</li>
+<li>从栈中取出返回地址</li>
+<li>跳转到该地址继续执行</li>
+</ol>
+<h2 id="代码编译过程"><a href="#代码编译过程" class="headerlink" title="代码编译过程"></a>代码编译过程</h2><p>预处理：对预处理命令进行替换等预处理操作<br>编译：代码优化和生成汇编代码<br>汇编：将汇编代码转化为机器语言<br>链接：将目标文件彼此链接起来</p>
+<h2 id="动态链接和静态链接"><a href="#动态链接和静态链接" class="headerlink" title="动态链接和静态链接"></a>动态链接和静态链接</h2><h3 id="静态链接"><a href="#静态链接" class="headerlink" title="静态链接"></a>静态链接</h3><p>函数和数据被编译进一个二进制文件。在使用静态库的情况下，在编译链接可执行文件时，链接器从库中复制这些函数和数据并把它们和应用程序的其它模块组合起来创建最终的可执行文件。<br><strong>空间浪费</strong>：因为每个可执行程序中对所有需要的目标文件都要有一份副本，所以如果多个程序对同一个目标文件都有依赖，会出现同一个目标文件在多个程序内都存在一个副本；<br><strong>更新困难</strong>：每当库函数的代码修改了，这个时候就需要重新进行编译链接形成可执行程序。<br><strong>运行速度快</strong>：但是静态链接的优点就是，在可执行程序中已经具备了所有执行程序所需要的任何东西，在执行的时候运行速度快。</p>
+<h3 id="动态链接"><a href="#动态链接" class="headerlink" title="动态链接"></a>动态链接</h3><p>动态链接的基本思想是把程序按照模块拆分成各个相对独立部分，在程序运行时才将它们链接在一起形成一个完整的程序，而不是像静态链接一样把所有程序模块都链接成一个单独的可执行文件。<br><strong>共享库</strong>：就是即使需要每个程序都依赖同一个库，但是该库不会像静态链接那样在内存中存在多个副本，而是这多个程序在执行时共享同一份副本；<br><strong>更新方便</strong>：更新时只需要替换原来的目标文件，而无需将所有的程序再重新链接一遍。当程序下一次运行时，新版本的目标文件会被自动加载到内存并且链接起来，程序就完成了升级的目标。<br><strong>性能损耗</strong>：因为把链接推迟到了程序运行时，所以每次执行程序都需要进行链接，所以性能会有一定损失。</p>
+<h3 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h3><ol>
+<li>使用静态链接生成的可执行文件可能会存在共享库的多个复本, 而使用动态链接库的可执行文件只有存在一份</li>
+<li>使用静态链接库的可执行程序不需要依赖动态链接库, 依赖关系简单; 而使用动态链接库的可执行程序需要引用动态链接库, 故而依赖关系复杂</li>
+<li><strong>静态链接生成的静态链接库不能再包含其他的动态链接库或则静态库, 而动态链接库可以包括其他的动态库或则静态库.</strong></li>
+</ol>
+<h2 id="指针与引用"><a href="#指针与引用" class="headerlink" title="指针与引用"></a>指针与引用</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><ol>
+<li>指针是一个新的变量，指向另一个变量的地址，我们可以通过访问这个地址来修改另一个变量</li>
+<li>引用是一个别名，对引用的操作就是对变量的本身进行操作</li>
+</ol>
+<h3 id="区别-1"><a href="#区别-1" class="headerlink" title="区别"></a>区别</h3><ol>
+<li>指针可以有多级，引用只有一级 </li>
+<li>传参的时候，使用指针的话需要解引用才能对参数进行修改，而使用引用可以直接对参数进行修改 </li>
+<li>指针可以为空，引用不可以</li>
+</ol>
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><ol>
+<li>需要返回函数内局部变量的内存的时候用指针。使用指针传参需要开辟内存，用完要记得释放指针，不然会内存泄漏。而返回局部变量的引用是没有意义的</li>
+<li>对栈空间大小比较敏感（比如递归）的时候使用引用。使用引用传递不需要创建临时变量，开销要更小;类对象作为参数传递的时候使用引用，这是C++类对象传递的标准方式。</li>
+</ol>
+<h3 id="引用和指针在汇编层"><a href="#引用和指针在汇编层" class="headerlink" title="引用和指针在汇编层"></a>引用和指针在汇编层</h3><p>引用和指针在汇编层完全一样，引用就是指针。<br>但在开发使用过程中，引用是等效于常量指针的（指向固定的对象），意味着两者在汇编层完全相同。<br>借此可以推导一些const关键词的特性：如果在汇编层完全相同的话，这个在使用上隐晦存在的（const）其实是由编译器保证的，它通过静态检查的方式确保引用无法被修改。</p>
+<h2 id="声明与定义"><a href="#声明与定义" class="headerlink" title="声明与定义"></a>声明与定义</h2><ol>
+<li>声明是告诉编译器变量的类型和名字，不会为变量分配空间</li>
+<li>定义是对这个变量和函数进行内存分配和初始化。需要分配空间，同一个变量可以被声明多次，但是只能被定义一次。</li>
+</ol>
+<h2 id="struct与class"><a href="#struct与class" class="headerlink" title="struct与class"></a>struct与class</h2><ol>
+<li>使用struct时，它的成员的访问权限默认是public的，而class的成员默认是private的</li>
+<li>struct的继承默认是public继承，而class的继承默认是private继承</li>
+<li>class可以用作模板，而struct不能</li>
+</ol>
+<h2 id="拷贝"><a href="#拷贝" class="headerlink" title="拷贝"></a>拷贝</h2><h3 id="浅拷贝"><a href="#浅拷贝" class="headerlink" title="浅拷贝"></a>浅拷贝</h3><p>将对象的指针进行简单的复制，原对象和副本指向的是相同的资源</p>
+<h3 id="深拷贝"><a href="#深拷贝" class="headerlink" title="深拷贝"></a>深拷贝</h3><p>新开辟一块空间，将原对象的资源复制到新的空间中，并返回该空间的地址</p>
+<h3 id="深浅拷贝的区别"><a href="#深浅拷贝的区别" class="headerlink" title="深浅拷贝的区别"></a>深浅拷贝的区别</h3><p>深拷贝可以避免重复释放和写冲突。例如使用浅拷贝的对象进行释放后，对原对象的释放会导致内存泄漏或程序崩溃。</p>
+<h3 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h3><p>零拷贝指的是在进行操作时，避免CPU从一处存储拷贝到另一处存储。在Linux中，我们可以减少数据在内核空间和用户空间的来回拷贝实现，比如通过调用mmap()来代替read调用。用程序调用mmap()，磁盘上的数据会通过DMA被拷贝到内核缓冲区，接着操作系统会把这段内核缓冲区与应用程序共享，这样就不需要把内核缓冲区的内容往用户空间拷贝。应用程序再调用write(),操作系统直接将内核缓冲区的内容拷贝到socket缓冲区中，这一切都发生在内核态，最后，socket缓冲区再把数据发到网卡去。</p>
+<h2 id="友元"><a href="#友元" class="headerlink" title="友元"></a>友元</h2><h3 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h3><p>友元提供了不同类的成员函数之间、类的成员函数和一般函数之间进行数据共享的机制。通过友元，一个不同函数或者另一个类中的成员函数可以访问类中的私有成员和保护成员。友元的正确使用能提高程序的运行效率，但同时也破坏了类的封装性和数据的隐藏性，导致程序可维护性变差。</p>
+<h3 id="友元函数"><a href="#友元函数" class="headerlink" title="友元函数"></a>友元函数</h3><p>友元函数是定义在类外的普通函数，不属于任何类，可以访问其他类的私有成员。但是需要在类的定义中用friend关键字声明所有可以访问它的友元函数。</p>
+<h3 id="友元类"><a href="#友元类" class="headerlink" title="友元类"></a>友元类</h3><p>友元类的所有成员函数都是另一个类的友元函数，都可以访问另一个类中的隐藏信息（包括私有成员和保护成员）。但是另一个类里面也要相应的进行声明。</p>
+<h3 id="友元类的注意点"><a href="#友元类的注意点" class="headerlink" title="友元类的注意点"></a>友元类的注意点</h3><ol>
+<li>友元关系不能被继承。 </li>
+<li>友元关系是单向的，不具有交换性。若类B是类A的友元，类A不一定是类B的友元，要看在类中是否有相应的声明。 </li>
+<li>友元关系不具有传递性。若类B是类A的友元，类C是B的友元，类C不一定是类A的友元，同样要看类中是否有相应的申明</li>
+</ol>
+<h2 id="列表成员初始化"><a href="#列表成员初始化" class="headerlink" title="列表成员初始化"></a>列表成员初始化</h2><ul>
+<li>赋值初始化，通过在函数体内进行赋值初始化；</li>
+<li>列表初始化，在冒号后使用初始化列表进行初始化。</li>
+</ul>
+<p>相对而言，列表成员初始化的效率会更高，列表初始化是给数据成员分配内存空间时就进行初始化, 而赋值初始化则先进性了一次初始化,然后调用了一次复制构造函数。</p>
+<h2 id="右值与移动构造"><a href="#右值与移动构造" class="headerlink" title="右值与移动构造"></a>右值与移动构造</h2><ul>
+<li>右值的概念: 将亡值, 不具名变量</li>
+<li>右值引用<ul>
+<li>概念: 其本身是一个左值, 但是它绑定了一个右值, 此右值的生命周期将和此右值引用一致.</li>
+<li>优点:<ul>
+<li>转移语意</li>
+<li>精确语意传递(参数列表分别为<strong>左值引用</strong>和<strong>右值引用</strong>形成参数重载)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>移动构造函数:<ul>
+<li>概念: 当我们使用一个即将消亡的对象A初始化对象B时, 使用移动语意可以避免额外的无意义的复制构造操作, 也避免了释放内存, 新分配内存的开销.</li>
+<li>实现:<ul>
+<li>移动构造函数的参数和拷贝构造函数不同，拷贝构造函数的参数是一个左值引用，但是移动构造函数的初值是一个右值引用。</li>
+<li>也就是说，只用一个右值，或者将亡值初始化另一个对象的时候，才会调用移动构造函数。</li>
+<li><strong>作为参数的右值将不会再调用析构函数。</strong></li>
+<li>move语句，就是将一个左值变成一个将亡值。</li>
+</ul>
+</li>
+<li>优点<ul>
+<li>避免了无谓的对下销毁和构造的开销</li>
+<li>当该类对象申请了堆内存, 并在析构函数中进行释放时, 使用拷贝构造函数可能会存产生也野指针, 而使用移动构造可以避免野指针的产生</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="函数指针"><a href="#函数指针" class="headerlink" title="函数指针"></a>函数指针</h2><ul>
+<li>什么是函数指针?<ul>
+<li>函数指针本质是一个指针, 它指向的是函数的入口地址, 它的类型是由函数的参数列表和返回值共同确定.</li>
+</ul>
+</li>
+<li>函数指针的声明方法<ul>
+<li>int (*pf)(const int&amp;, const int&amp;); (1)</li>
+<li>pf是一个返回类型为int, 参数为两个const int&amp;的函数。<strong>注意*pf 两边的括号是必须的</strong><ul>
+<li>否则上面的定义就变成了：</li>
+<li>int *pf(const int&amp;, const int&amp;); &#x2F;&#x2F; 这声明了一个函数pf, 其返回类型为int *, 带有两个const int&amp;参数.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>为什么有函数指针<ul>
+<li>可以通过函数指针进行函数调用</li>
+<li>而且函数指针本质是一个指针, 可以把它指向返回值类型和形参列表相同的不同函数</li>
+<li>另外还能将函数指针作为函数参数进行传递.</li>
+<li>通过函数指针可以把函数的调用者与被调函数分开。<ul>
+<li>调用者只需要确定被调函数是一个具有特定参数列表和特定返回值的函数,</li>
+<li>而不需要知道具体是哪个函数被调用.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>两种方法赋值：<ul>
+<li>指针名 &#x3D; 函数名</li>
+<li>指针名 &#x3D; &amp;函数名</li>
+</ul>
+</li>
+</ul>
+<h2 id="C-和其他语言的区别"><a href="#C-和其他语言的区别" class="headerlink" title="C++和其他语言的区别"></a>C++和其他语言的区别</h2><h3 id="和C的区别"><a href="#和C的区别" class="headerlink" title="和C的区别"></a>和C的区别</h3><ol>
+<li>C是面向过程的语言，C++是面向对象的语言，C++有“封装，继承和多态”的特性</li>
+<li>C和C++内存管理的方法不一样，C使用malloc&#x2F;free，C++除此之外还用new&#x2F;delete</li>
+<li>C++中有函数重载和引用等概念，C中没有</li>
+</ol>
+<h3 id="和Java的区别"><a href="#和Java的区别" class="headerlink" title="和Java的区别"></a>和Java的区别</h3><ol>
+<li>C++ 和Java都是面向对象的语言，C++是编译成可执行文件直接运行的，JAVA是编译之后在JAVA虚拟机上运行的，因此JAVA有良好的跨平台特性，但是执行效率没有C++ 高</li>
+<li>C++的内存管理由程序员手动管理，JAVA的内存管理是由Java虚拟机完成的，它的垃圾回收使用的是标记-回收算法</li>
+<li>C++有指针，Java没有指针，只有引用</li>
+<li>JAVA和C++都有构造函数，但是C++有析构函数但是Java没有</li>
+</ol>
+<h3 id="和python的区别"><a href="#和python的区别" class="headerlink" title="和python的区别"></a>和python的区别</h3><ol>
+<li>python是一种脚本语言，是解释执行的，而C++是编译语言，是需要编译后在特定平台运行的。</li>
+<li>python可以很方便的跨平台，但是效率没有C++高</li>
+</ol>
+
     </article>
     <!-- license -->
     
@@ -495,7 +638,7 @@
             <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
             <p>Link：<a href="https://liaoyuanf.github.io/2023/12/03/Cpp-basics-2/">https://liaoyuanf.github.io/2023/12/03/Cpp-basics-2/</a>
             <p>Publish date：<a href="https://liaoyuanf.github.io/2023/12/03/Cpp-basics-2/">December 3rd 2023, 10:13:24 pm</a>
-            <p>Update date：<a href="https://liaoyuanf.github.io/2023/12/03/Cpp-basics-2/">December 3rd 2023, 10:13:24 pm</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2023/12/03/Cpp-basics-2/">December 3rd 2023, 10:54:23 pm</a>
             <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     
@@ -646,7 +789,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#main%E5%87%BD%E6%95%B0%E6%89%A7%E8%A1%8C%E5%89%8D%E8%BF%87%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">main函数执行前过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%99%AE%E9%80%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">普通函数调用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">代码编译过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%92%8C%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">动态链接和静态链接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5"><span class="toc-number">4.1.</span> <span class="toc-text">静态链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5"><span class="toc-number">4.2.</span> <span class="toc-text">动态链接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8C%BA%E5%88%AB"><span class="toc-number">4.3.</span> <span class="toc-text">区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%87%E9%92%88%E4%B8%8E%E5%BC%95%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">指针与引用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E5%BF%B5"><span class="toc-number">5.1.</span> <span class="toc-text">概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8C%BA%E5%88%AB-1"><span class="toc-number">5.2.</span> <span class="toc-text">区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">5.3.</span> <span class="toc-text">使用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%95%E7%94%A8%E5%92%8C%E6%8C%87%E9%92%88%E5%9C%A8%E6%B1%87%E7%BC%96%E5%B1%82"><span class="toc-number">5.4.</span> <span class="toc-text">引用和指针在汇编层</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A3%B0%E6%98%8E%E4%B8%8E%E5%AE%9A%E4%B9%89"><span class="toc-number">6.</span> <span class="toc-text">声明与定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#struct%E4%B8%8Eclass"><span class="toc-number">7.</span> <span class="toc-text">struct与class</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%B7%E8%B4%9D"><span class="toc-number">8.</span> <span class="toc-text">拷贝</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%85%E6%8B%B7%E8%B4%9D"><span class="toc-number">8.1.</span> <span class="toc-text">浅拷贝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E6%8B%B7%E8%B4%9D"><span class="toc-number">8.2.</span> <span class="toc-text">深拷贝</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">8.3.</span> <span class="toc-text">深浅拷贝的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%B6%E6%8B%B7%E8%B4%9D"><span class="toc-number">8.4.</span> <span class="toc-text">零拷贝</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8B%E5%85%83"><span class="toc-number">9.</span> <span class="toc-text">友元</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E5%BF%B5-1"><span class="toc-number">9.1.</span> <span class="toc-text">概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8B%E5%85%83%E5%87%BD%E6%95%B0"><span class="toc-number">9.2.</span> <span class="toc-text">友元函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8B%E5%85%83%E7%B1%BB"><span class="toc-number">9.3.</span> <span class="toc-text">友元类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8B%E5%85%83%E7%B1%BB%E7%9A%84%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">9.4.</span> <span class="toc-text">友元类的注意点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%97%E8%A1%A8%E6%88%90%E5%91%98%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">10.</span> <span class="toc-text">列表成员初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%B3%E5%80%BC%E4%B8%8E%E7%A7%BB%E5%8A%A8%E6%9E%84%E9%80%A0"><span class="toc-number">11.</span> <span class="toc-text">右值与移动构造</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88"><span class="toc-number">12.</span> <span class="toc-text">函数指针</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C-%E5%92%8C%E5%85%B6%E4%BB%96%E8%AF%AD%E8%A8%80%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">13.</span> <span class="toc-text">C++和其他语言的区别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%92%8CC%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">13.1.</span> <span class="toc-text">和C的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%92%8CJava%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">13.2.</span> <span class="toc-text">和Java的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%92%8Cpython%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">13.3.</span> <span class="toc-text">和python的区别</span></a></li></ol></li></ol>
             </div>
         
         <!-- sidebar -->
