@@ -122,6 +122,13 @@ jsonContent:
     comments: false
     link: false
     permalink: true
-    excerpt: false
+    excerpt: true
     categories: true
     tags: true
+
+
+excerpt:
+  depth: 10
+  excerpt_excludes: []
+  more_excludes: []
+  hideWholePostExcerpts: true
