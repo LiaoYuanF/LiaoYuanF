@@ -442,6 +442,127 @@
         
         
             
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2023/12/03/Cpp-basics-4/">
+                
+                <span class="abstract-title-text">Cpp-basics-4</span>
+            </a>
+            <div class="abstract-content">
+                
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2023/12/03">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2023/12/03</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2023/12/03/Cpp-basics-3/">
+                
+                <span class="abstract-title-text">Cpp-basics-3</span>
+            </a>
+            <div class="abstract-content">
+                
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2023/12/03">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2023/12/03</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2023/12/03/Cpp-basics-2/">
+                
+                <span class="abstract-title-text">Cpp-basics-2</span>
+            </a>
+            <div class="abstract-content">
+                
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2023/12/03">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2023/12/03</span>
+                </div>
+                <!-- tags -->
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
+            
+        
+        <article class="index-post">
+            <a class="abstract-title" href="/2023/12/03/Cpp-basics-1/">
+                
+                <span class="abstract-title-text">Cpp-basics-1</span>
+            </a>
+            <div class="abstract-content">
+                <h1 id="volatile特性"><a href="#volatile特性" class="headerlink" title="volatile特性"></a>volatile特性</h1><h3 id="易变性"><a href="#易变性" class="headerlink" title="易变性"></a>易变性</h3><p>在汇编层面反映出来，就是两条语句，下一条语句不会直接使用上一条语句对应的volatile变量的寄存器内容，而是重新从内存中读取。</p>
+<h3 id="不可优化性"><a href="#不可优化性" class="headerlink" title="不可优化性"></a>不可优化性</h3><p>volatile告诉编译器，不要对我这个变量进行各种激进的优化，甚至将变量直接消除，保证程序员写在代码中的指令，一定会被执行。</p>
+<h3 id="顺序性"><a href="#顺序性" class="headerlink" title="顺序性"></a>顺序性</h3><p>能够保证volatile变量间的顺序性，编译器不会进行乱序优化。</p>
+<h3 id="拓展"><a href="#拓展" class="headerlink" title="拓展"></a>拓展</h3><p>volatile变量，与非volatile变量之间的操作，是可能被编译器交换顺序的。<br>volatile变量间的操作，是不会被编译器交换顺序的。<br>哪怕将所有的变量全部都声明为volatile，杜绝了编译器的乱序优化，但是针对生成的汇编代码，CPU有可能仍旧会乱序执行指令，导致程序依赖的逻辑出错，volatile对此无能为力。针对这个多线程的应用，正确的做法，是构建一个happens-before语义。</p>
+<h1 id="static特性"><a href="#static特性" class="headerlink" title="static特性"></a>static特性</h1>
+            </div>
+            <!-- read more -->
+            
+            <div class="abstract-post-meta">
+                <!-- date -->
+                <div class="abstract-date" title="Last updated: 2023/12/03">
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2023/12/03</span>
+                </div>
+                <!-- tags -->
+                
+                    <div class= abstract-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Cpp">Cpp</a>
+    
+</div>
+
+                
+            </div>
+        </article>
+        <div class="index-post-divider"></div>
+    
+        
+        
+        
+        
+            
             
         
         <article class="index-post">
@@ -696,14 +817,50 @@
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
     
     
     
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 1
+        Total : 5
         </div>
         <!-- search  -->
         
@@ -719,6 +876,30 @@
             
         
         <li class="archive-post-item">
+            <span class="archive-post-date">12/03</span>
+            <a class="archive-post-title" href="/2023/12/03/Cpp-basics-1/">Cpp-basics-1</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/03</span>
+            <a class="archive-post-title" href="/2023/12/03/Cpp-basics-2/">Cpp-basics-2</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/03</span>
+            <a class="archive-post-title" href="/2023/12/03/Cpp-basics-3/">Cpp-basics-3</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/03</span>
+            <a class="archive-post-title" href="/2023/12/03/Cpp-basics-4/">Cpp-basics-4</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
             <span class="archive-post-date">12/02</span>
             <a class="archive-post-title" href="/2023/12/02/some-plans/">迁移计划</a>
         </li>
@@ -732,6 +913,11 @@
             <span class="sidebar-tag-name" data-tags="Plan">
                 <span class="iconfont-archer">&#xe606;</span>
                 Plan
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Cpp">
+                <span class="iconfont-archer">&#xe606;</span>
+                Cpp
             </span>
         
     </div>
