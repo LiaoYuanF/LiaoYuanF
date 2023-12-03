@@ -128,7 +128,7 @@ jsonContent:
 
 
 excerpt:
-  depth: 10
+  depth: 4
   excerpt_excludes: []
   more_excludes: []
   hideWholePostExcerpts: true
