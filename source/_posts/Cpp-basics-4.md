@@ -1,5 +1,5 @@
 ---
-title: Cpp-basics-4
+title: Cpp基础知识点4
 date: 2023-12-03 22:13:35
 tags: Cpp
 abstract: Cpp面向对象的基础知识

@@ -1,5 +1,5 @@
 ---
-title: Cpp-basics-2
+title: Cpp基础知识点2
 date: 2023-12-03 22:13:24
 tags: Cpp
 abstract: Cpp中的一些基础概念
