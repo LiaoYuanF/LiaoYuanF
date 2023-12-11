@@ -1,5 +1,5 @@
 ---
-title: 模版编程技巧--CRTP
+title: 模版编程技巧(一)--CRTP
 date: 2023-12-08 18:24:34
 tags: Cpp
 ---
