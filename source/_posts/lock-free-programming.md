@@ -18,9 +18,9 @@ tags: Cpp
 互斥锁本质上作为一个状态值，本身和一个共享资源绑定在一起，逻辑上可以简单将互斥锁理解为如下结构。
 ```cpp
 struct mutex_lock{
-	atomic_t state;
-	object owner;
-	queue waiting_threads;
+    atomic_t state;
+    object owner;
+    queue waiting_threads;
 }
 ```
 在 CPU 的其中一个核上的线程在执行到加锁逻辑时，会根据这个锁的 owner 找到其对应的状态 state 值，会根据当前状态会有两种可能：
@@ -55,11 +55,11 @@ struct mutex_lock{
 ```cpp
 atomic<bool> isLock = false;
 void ThreadFunc(){
-	bool expect = flase;
-	while(!isLock.compare_exchange_weak(expect,true)){
-    	expect = false;
+    bool expect = flase;
+    while(!isLock.compare_exchange_weak(expect,true)){
+        expect = false;
     }
-	//do something
+    //do something
     isLock.store(false);
 }
 
@@ -274,4 +274,3 @@ void thread2()
 **memory_order_release** 和 **memory_order_consume **是数据依赖序列。
 memory_order_consume 的底层实现并不使用内存屏障，而是分析数据依赖来保证数据依赖链上的指令的顺序一致性。
 在从内存加载数据到缓存的时候，根据数据依赖链的顺序去加载。写入内存还是使用 memory_order_release 的策略不变。这种内存序在多平台方面，支持不是很好，有一些硬件设备并不支持这种内存序列，因此它会被退化成获取-释放序列。
-
