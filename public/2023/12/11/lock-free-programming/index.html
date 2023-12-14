@@ -26,11 +26,14 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="所谓的无锁编程，真的存在吗？">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/lock-free-programming-1.png">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/lock-free-programming-2.png">
 <meta property="article:published_time" content="2023-12-11T15:09:07.000Z">
-<meta property="article:modified_time" content="2023-12-14T15:02:48.542Z">
+<meta property="article:modified_time" content="2023-12-14T15:18:47.854Z">
 <meta property="article:author" content="Flynn">
 <meta property="article:tag" content="Cpp">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://liaoyuanf.github.io/images/lock-free-programming-1.png">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
@@ -547,110 +550,7 @@
 <li>_Shared_，共享</li>
 <li>_Invalidated_，已失效</li>
 </ul>
-<table>
-<thead>
-<tr>
-<th><strong>当前状态</strong></th>
-<th><strong>事件</strong></th>
-<th><strong>状态流转规则</strong></th>
-</tr>
-</thead>
-<tbody><tr>
-<td>已失效</td>
-<td>Local Read</td>
-<td>由于当前缓存行失效，需要重新从内存中读取数据。1.如果其他CPU中没有该数据，直接从内存中读取数据，并将缓存行状置为E。2.如果其他CPU中存在该数据，且对应缓存行状态为M，要其他CPU中数据写回到内存中后再读取内存数据，并将缓存行状态置为S。3.如果其他CPU中存在该数据，且对应缓存行状态为S或E，从内存中读取数据并将缓存行状态置为S。</td>
-</tr>
-<tr>
-<td></td>
-<td>Local Write</td>
-<td>由于当前缓存行失效，需要重新从内存中读取数据。1.如果其他CPU中没有该数据，直接从内存中读取数据，修改数据后将缓存行状置为M。2.如果其他CPU中存在该数据，且对应缓存行状态为M，要先将其他CPU中数据写回到内存中，并将缓存行状态置为1，然后本地再读取内存数据，修改数据后将缓存行状置为M</td>
-</tr>
-<tr>
-<td>其他CPU中存在该数据，且对应缓存行状态为S或E，本地CPU从内存中读取数据并将缓存行状态置为M，同时其他CPU将缓存行状态置为1</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td>Remote Read</td>
-<td>本地数据已失效，其他CPU读写操作不会再引起状态变化</td>
-</tr>
-<tr>
-<td></td>
-<td>Remote Write</td>
-<td>本地数据已失效，其他CPU读写操作不会再引起状态变化</td>
-</tr>
-<tr>
-<td>独占</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Local Read</td>
-<td>状态不变</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td>Local Write</td>
-<td>状态变为M</td>
-</tr>
-<tr>
-<td></td>
-<td>Remote Read</td>
-<td>其他CPU访问数据，不再独占，状态变为S</td>
-</tr>
-<tr>
-<td></td>
-<td>Remote Write</td>
-<td>数据被其他CPU修改，本地缓存数据失效，状态变为l</td>
-</tr>
-<tr>
-<td>共享</td>
-<td>Local Read</td>
-<td>状态不变</td>
-</tr>
-<tr>
-<td></td>
-<td>Local Write</td>
-<td>本地状态变为M，其他CPU中缓存该数据的缓存行状态变为1</td>
-</tr>
-<tr>
-<td></td>
-<td>Remote Read</td>
-<td>状态不变</td>
-</tr>
-<tr>
-<td></td>
-<td>Remote Write</td>
-<td>数据被其他CPU修改，本地缓存数据失效，状态变为1</td>
-</tr>
-<tr>
-<td>已修改</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Local Read</td>
-<td>状态不变</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td>Local Write</td>
-<td>状态不变</td>
-</tr>
-<tr>
-<td></td>
-<td>Remote Read</td>
-<td>其他CPU需要访问最新数据，需要将数据写入内存中，状态变为S</td>
-</tr>
-<tr>
-<td></td>
-<td>Remote Write</td>
-<td>其他CPU需要访问最新数据，需要将数据写入内存中，由于其他CPU获取数据后又修改了数据，因此状态变为I</td>
-</tr>
-</tbody></table>
+<p><img src="/images/lock-free-programming-1.png" alt="图片_20231214231518.png"></p>
 <h3 id="2-3-3-一些其他的引申"><a href="#2-3-3-一些其他的引申" class="headerlink" title="2.3.3 一些其他的引申"></a>2.3.3 一些其他的引申</h3><p>缓存一致性协议确实可以保障多核CPU缓存一致性，但是由于需要广播所以过于低效，所以实际CPU并不会遵守这个协议，为了提高性能CPU实际上存在着 Store Buffer和Invalidate Queue这两个机制，但是这边不进行展开了。</p>
 <h2 id="2-4-是否可能存在指令乱序的问题？"><a href="#2-4-是否可能存在指令乱序的问题？" class="headerlink" title="2.4 是否可能存在指令乱序的问题？"></a>2.4 是否可能存在指令乱序的问题？</h2><h3 id="2-4-1-跨线程的无依赖指令可能存在乱序"><a href="#2-4-1-跨线程的无依赖指令可能存在乱序" class="headerlink" title="2.4.1 跨线程的无依赖指令可能存在乱序"></a>2.4.1 跨线程的无依赖指令可能存在乱序</h3><p>到目前为止，我们已经从捋清楚了在多核CPU的情况下，对某个atomic变量进行修改操作是原子性的这一事件的声明。接下来我们需要面对另外一个问题：指令乱序。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//共享变量</span></span><br><span class="line"><span class="type">int</span> a, b, c = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    a = <span class="number">1</span>;  <span class="comment">//1</span></span><br><span class="line">    b = a;  <span class="comment">//2</span></span><br><span class="line">    c = <span class="number">1</span>;  <span class="comment">//3</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(c == <span class="number">0</span>) <span class="keyword">continue</span>; <span class="comment">//4 </span></span><br><span class="line">    <span class="built_in">assert</span>(b == <span class="number">1</span>); <span class="comment">//5</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -658,78 +558,9 @@
 <h3 id="2-4-2-通过内存屏障解决指令乱序问题"><a href="#2-4-2-通过内存屏障解决指令乱序问题" class="headerlink" title="2.4.2 通过内存屏障解决指令乱序问题"></a>2.4.2 通过内存屏障解决指令乱序问题</h3><h4 id="2-4-2-1-内存屏障概念"><a href="#2-4-2-1-内存屏障概念" class="headerlink" title="2.4.2.1 内存屏障概念"></a>2.4.2.1 内存屏障概念</h4><p>内存屏障就是将内存&#x2F;缓存的读写操作过程进行分隔。<br>缓存和内存之间的操作分为 Store 和 Load 两种。</p>
 <ul>
 <li>Store：将处理器缓存的数据刷新到内存中。</li>
-<li>Load：将内存存储的数据拷贝到处理器的缓存中。<table>
-<thead>
-<tr>
-<th><strong>屏障类型</strong></th>
-<th><strong>指令示例</strong></th>
-<th><strong>说明</strong></th>
-</tr>
-</thead>
-<tbody><tr>
-<td>LoadLoad 屏障</td>
-<td>Load指令1</td>
-<td></td>
-</tr>
-<tr>
-<td>LoadLoad屏障</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Load指令2</td>
-<td>确保[Load 指令 1]加载数据到缓存之后，[Load 指令 2]以及[其之后所有 Load 指令]才能加载数据到缓存。</td>
-<td></td>
-</tr>
-<tr>
-<td>StoreStore 屏障</td>
-<td>Store指令1</td>
-<td></td>
-</tr>
-<tr>
-<td>StoreStore屏障</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Store指令2</td>
-<td>确保[Store 指令 1]写入数据到内存之后，[Store 指令 2]以及[其之后所有 Store 指令]才能写入数据到内存。</td>
-<td></td>
-</tr>
-<tr>
-<td>LoadStore 屏障</td>
-<td>Load指令1</td>
-<td></td>
-</tr>
-<tr>
-<td>LoadStore屏障</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Store指令2</td>
-<td>确保[Load 指令 1]加载数据到缓存之后，[Store 指令 2]以及[其之后所有 Store 指令]才能写入数据到内存</td>
-<td></td>
-</tr>
-<tr>
-<td>StoreLoad 屏障</td>
-<td>Store指令1</td>
-<td></td>
-</tr>
-<tr>
-<td>StoreLoad屏障</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Load指令2</td>
-<td>确保[Store 指令 1]写入数据到内存之后，[Load 指令 2]以及[其之后所有 Load 指令]才能加载数据到缓存。</td>
-<td></td>
-</tr>
-</tbody></table>
-</li>
+<li>Load：将内存存储的数据拷贝到处理器的缓存中。</li>
 </ul>
-<p>从上表中可以看出来，内存屏障的主要作用就是通过<strong>强制读写内存来间接避免指令重排</strong>。<br>所以，在之前那个程序中进行如下更改就可以避免指令重排，强制保障执行顺序为12345：</p>
+<p><img src="/images/lock-free-programming-2.png" alt="图片_20231214231440.png"><br>从上表中可以看出来，内存屏障的主要作用就是通过<strong>强制读写内存来间接避免指令重排</strong>。<br>所以，在之前那个程序中进行如下更改就可以避免指令重排，强制保障执行顺序为12345：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//共享变量</span></span><br><span class="line"><span class="type">int</span> a, b, c = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    a = <span class="number">1</span>;  <span class="comment">//1</span></span><br><span class="line">    b = a;  <span class="comment">//2</span></span><br><span class="line">    <span class="built_in">StoreStoreBarriers</span>();</span><br><span class="line">    c = <span class="number">1</span>;  <span class="comment">//3</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(c == <span class="number">0</span>) <span class="keyword">continue</span>; <span class="comment">//4 </span></span><br><span class="line">    <span class="built_in">LoadLoadBarriers</span>();</span><br><span class="line">    <span class="built_in">assert</span>(b == <span class="number">1</span>); <span class="comment">//5</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h4 id="2-4-2-2-C-对内存屏障提供的接口"><a href="#2-4-2-2-C-对内存屏障提供的接口" class="headerlink" title="2.4.2.2 C++对内存屏障提供的接口"></a>2.4.2.2 C++对内存屏障提供的接口</h4><p>假设在编程过程中存在大量原子读写操作，如果全部操作都不允许指令重排，也就是严格保证顺序一致性，虽然运行结果很容易符合开发者编程预期，降低了开发难度，但是这样会很大程度影响 CPU 执行性能。<br>因此C++ 通过引入内存序接口，提供了控制 CPU 缓存同步的能力给开发者，让内存读写的顺序更加灵活可控。C++ 的内存序允许按照批次保证内存读写顺序，而不必对每一个读写操作保证，也就是说批次和批次之间保持顺序一致性，批次内部保持松散顺序就行。<br>C++提供了六种严格度不同的内存序：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span> <span class="title class_">memory_order</span></span><br><span class="line">&#123;</span><br><span class="line">    memory_order_relaxed,</span><br><span class="line">    memory_order_acquire,</span><br><span class="line">    memory_order_release,</span><br><span class="line">    memory_order_consume,</span><br><span class="line">    memory_order_acq_rel,</span><br><span class="line">    memory_order_seq_cst,</span><br><span class="line">&#125; memory_oder;</span><br></pre></td></tr></table></figure>
@@ -748,7 +579,7 @@
             <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
             <p>Link：<a href="https://liaoyuanf.github.io/2023/12/11/lock-free-programming/">https://liaoyuanf.github.io/2023/12/11/lock-free-programming/</a>
             <p>Publish date：<a href="https://liaoyuanf.github.io/2023/12/11/lock-free-programming/">December 11th 2023, 11:09:07 pm</a>
-            <p>Update date：<a href="https://liaoyuanf.github.io/2023/12/11/lock-free-programming/">December 14th 2023, 11:02:48 pm</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2023/12/11/lock-free-programming/">December 14th 2023, 11:18:47 pm</a>
             <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     
