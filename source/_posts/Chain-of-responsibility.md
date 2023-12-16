@@ -56,7 +56,7 @@ tags: design pattern
    - 观察者模式中的处理对象功能可能完全无关，观察者模式主要负责将信息传递给处理对象即可
    - 责任链模式的处理对象功能一般相似，另外责任链模式也关注请求是否正确被处理
 
-[![image.png](/images/pattern-1.png)
+![image.png](/images/pattern-1.png)
 责任链模式的核心在于将处理对象整理成链路。
 # 适用场景
 
