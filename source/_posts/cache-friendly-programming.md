@@ -1,5 +1,5 @@
 ---
-title: cache-friendly-programming
+title: 缓存友好编程
 date: 2024-01-17 23:32:16
 tags: Cpp
 ---
