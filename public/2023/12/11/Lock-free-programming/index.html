@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="Flynn">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="Flynn">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="所谓的无锁编程，真的存在吗？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++无锁编程(一)">
+<meta property="og:url" content="https://liaoyuanf.github.io/2023/12/11/Lock-free-programming/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="所谓的无锁编程，真的存在吗？">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/lock-free-programming-1.png">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/lock-free-programming-2.png">
+<meta property="article:published_time" content="2023-12-11T15:09:07.000Z">
+<meta property="article:modified_time" content="2023-12-14T15:18:47.854Z">
+<meta property="article:author" content="Flynn">
+<meta property="article:tag" content="Cpp">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://liaoyuanf.github.io/images/lock-free-programming-1.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>C++无锁编程(一) · Flynn&#39;s Studio</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20211217" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20211217" as="style">
+    <link rel="stylesheet" href="/css/dark.css">
+    <link rel="stylesheet" href="/css/mobile.css?v=20211217" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20211217" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20211217" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- Google tag (gtag.js) -->
+    
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>Flynn's Studio</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Flynn&#39;s Studio</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">C++无锁编程(一)</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+    
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                C++无锁编程(一)
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Cpp">Cpp</a>
+    
+</div>
+
+                
+                <!-- 文章字数统计 -->
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2023/12/11</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>所谓的无锁编程，真的存在吗？</p>
+<h1 id="1-无锁编程的背景"><a href="#1-无锁编程的背景" class="headerlink" title="1 无锁编程的背景"></a>1 无锁编程的背景</h1><h2 id="1-1-需要互斥锁的原因"><a href="#1-1-需要互斥锁的原因" class="headerlink" title="1.1 需要互斥锁的原因"></a>1.1 需要互斥锁的原因</h2><p>在传统的多线程、多进程的编程模式中，互斥锁是一种不可或缺的工具。<br>在本质上，可以归结为两种原因：</p>
+<ol>
+<li>需要安全地并发访问共享资源。</li>
+<li>需要在共享资源上控制访问顺序。</li>
+</ol>
+<p>它们都将确保代码在的某些线程不安全部分不会并发执行或者以错误的顺序执行。</p>
+<h2 id="1-2-互斥锁存在的问题"><a href="#1-2-互斥锁存在的问题" class="headerlink" title="1.2 互斥锁存在的问题"></a>1.2 互斥锁存在的问题</h2><h3 id="1-2-1-互斥锁的本质"><a href="#1-2-1-互斥锁的本质" class="headerlink" title="1.2.1 互斥锁的本质"></a>1.2.1 互斥锁的本质</h3><p>互斥锁本质上作为一个状态值，本身和一个共享资源绑定在一起，逻辑上可以简单将互斥锁理解为如下结构。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">mutex_lock</span>&#123;</span><br><span class="line">    <span class="type">atomic_t</span> state;</span><br><span class="line">    object owner;</span><br><span class="line">    queue waiting_threads;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 CPU 的其中一个核上的线程在执行到加锁逻辑时，会根据这个锁的 owner 找到其对应的状态 state 值，会根据当前状态会有两种可能：</p>
+<ol>
+<li>如果 state 是未被锁的状态，则当前 CPU 核正常执行该线程接下来的代码，同时修改 state 值为已被锁的状态，并将状态同步给其他 CPU 核；</li>
+<li>如果 state 是已被锁的状态，则当前 CPU 核不再继续往下执行该线程代码，而是将线程加入等待队列wait_threads，等待互斥锁退出后重新被调度。</li>
+</ol>
+<p>在第二种情况中，由于state 被锁，所以导致了当前CPU正在执行的线程被挂起，操作系统会给核分配其他活动着的线程的代码来执行，也就产生了“<strong>线程切换</strong>”。</p>
+<h3 id="1-2-2-互斥锁带来的开销"><a href="#1-2-2-互斥锁带来的开销" class="headerlink" title="1.2.2 互斥锁带来的开销"></a>1.2.2 互斥锁带来的开销</h3><h4 id="1-2-2-1-互斥锁本身的开销"><a href="#1-2-2-1-互斥锁本身的开销" class="headerlink" title="1.2.2.1 互斥锁本身的开销"></a>1.2.2.1 互斥锁本身的开销</h4><p>使用锁需要额外的资源，例如锁的内存空间，以及用于初始化、销毁、获取和释放锁的 CPU 资源。我们使用锁来保护对共享资源的访问的任何地方，都会有额外的开销。</p>
+<h4 id="1-2-2-2-线程切换的开销"><a href="#1-2-2-2-线程切换的开销" class="headerlink" title="1.2.2.2 线程切换的开销"></a>1.2.2.2 线程切换的开销</h4><p>一次线程切换意味着3us左右的开销（粗略数据，根据不同的CPU规格存在差异）<br><strong>直接开销：</strong></p>
+<ol>
+<li>切换页表全局目录</li>
+<li>切换内核态堆栈</li>
+<li>切换硬件上下文（寄存器内数据，包括下一条指令地址，执行中函数栈顶、栈底地址等）</li>
+<li>刷新TLB（在切换后进行页表查询时将全部击穿TLB）</li>
+</ol>
+<p><strong>间接开销：</strong><br>间接开销主要在于切换之后，各种缓存并不热，速度运行会变慢慢一些。如果始终都在一个CPU上调度还好一些，如果跨CPU的话，之前热起来的TLB、L1、L2、L3因为运行的进程已经变了，所以以局部性原理cache起来的代码、数据也都没有用了，导致新进程穿透到内存的IO会变多。 </p>
+<p>感兴趣的同学可以参考这篇文章：<br><a target="_blank" rel="noopener" href="https://www.usenix.org/legacy/events/expcs07/papers/2-li.pdf">https://www.usenix.org/legacy/events/expcs07/papers/2-li.pdf</a></p>
+<h1 id="2-无锁编程原理"><a href="#2-无锁编程原理" class="headerlink" title="2 无锁编程原理"></a>2 无锁编程原理</h1><p>继续回到上文的需要互斥锁的原因往下说，想要完全不存在锁的话，那就要从根源上保证访问共享资源时候不会冲突，这显然是无法做到的。<br>所以，身为程序开发者，只能从另外的角度来消除锁的影响。</p>
+<h2 id="2-1-从自旋锁说起"><a href="#2-1-从自旋锁说起" class="headerlink" title="2.1 从自旋锁说起"></a>2.1 从自旋锁说起</h2><p>直接针对上面问题出发，我们已经得到了互斥锁的开销来自于线程切换的结论。<br>那么如果针对线程切换的开销的话，那就用自旋锁来代替互斥锁。当发生无法抢占锁的时候，拒绝被操作系统调度，用死循环占用核资源。下面是一把非常简单粗暴的自旋锁：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">atomic&lt;<span class="type">bool</span>&gt; isLock = <span class="literal">false</span>;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">ThreadFunc</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="type">bool</span> expect = flase;</span><br><span class="line">    <span class="keyword">while</span>(!isLock.<span class="built_in">compare_exchange_weak</span>(expect,<span class="literal">true</span>))&#123;</span><br><span class="line">        expect = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//do something</span></span><br><span class="line">    isLock.<span class="built_in">store</span>(<span class="literal">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这种设计存在着一些问题，比如自旋时浪费资源过多等等，但是这些先不重要。重要的是可以先探究一下它作为一把自旋锁，能保证安全的合理性在哪里。</p>
+<h2 id="2-2-atomic凭什么保证原子性"><a href="#2-2-atomic凭什么保证原子性" class="headerlink" title="2.2 atomic凭什么保证原子性?"></a>2.2 atomic凭什么保证原子性?</h2><p>上面的自旋锁的粗暴实现，有一个很基础的前提，就是 isLock.compare_exchange_weak (expect,true) 这个操作对于多线程的并发操作来说是原子的，是多线程中最小的且不可并行化的操作。C++ 11宣称atomic类型的变量保证了该对象的原子性，那么具体在操作系统层面的实现基础是什么？<br>事实上，操作系统对原子性的操作保障无能为力，原子性的保障是来自于硬件层的支持。<br>在传统的CPU中，执行一条普通的指令是需要取指、译码、执行、写回结果等许多步骤的，这些指令是可以打断，可以相互穿插的，为了多线程的编程，CPU不得不专门提供一条Test and Exchange指令，把“检测内容，等于xx则修改其值”这样必须两三条指令才能完成的操作整合进一条指令来保障这个 isLock &#x3D; xx 这个操作不被打断或者穿插。</p>
+<h2 id="2-3-如果多核条件下原子性还存在吗？"><a href="#2-3-如果多核条件下原子性还存在吗？" class="headerlink" title="2.3 如果多核条件下原子性还存在吗？"></a>2.3 如果多核条件下原子性还存在吗？</h2><p>但是现代化的CPU都不能单核那么简单的，基本上都是多CPU在并发处理指令，并发处理指令则必定会遇到缓存数据与内存数据之间可能存在不一致的情况：如果线程a和b位于两个不同的CPU核上，那么确定保障了对同一个变量写的原子性吗？</p>
+<h3 id="2-3-1-单核心CPU的写策略"><a href="#2-3-1-单核心CPU的写策略" class="headerlink" title="2.3.1 单核心CPU的写策略"></a>2.3.1 单核心CPU的写策略</h3><p>先简单回顾一下单核心CPU的两种写策略：</p>
+<ul>
+<li><strong>写直达</strong>：CPU每次访问修改数据时，无论数据在不在缓存中，都将修改后的数据同步到内存中，缓存数据与内存数据保持<strong>强一致性</strong>，这种做法影响写操作的性能。</li>
+<li><strong>写回</strong>：为了避免每次写操作都要进行数据同步带来的性能损失，写回策略里发生读写操作时：<ul>
+<li>如果缓存行中命中了数据，写操作对缓存行中数据进行更新，并标记该缓存行为已修改。</li>
+<li>如果缓存中未命中数据，且数据所对应的缓存行中存放了其他数据：<ul>
+<li><strong>若该缓存行被标记为已修改</strong>，读写操作都会将缓存行中现存的数据<strong>写回</strong>内存中，再将当前要获取的数据从内存读到缓存行，写操作对数据进行更新后标记该缓存行为已修改；</li>
+<li><strong>若该缓存行未被标记为已修改</strong>，读写操作都直接将当前要获取的数据从内存读到缓存行。写操作对数据进行更新后标记该缓存行为已修改。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-3-2-多核心CPU的写策略"><a href="#2-3-2-多核心CPU的写策略" class="headerlink" title="2.3.2 多核心CPU的写策略"></a>2.3.2 多核心CPU的写策略</h3><p>早年的多核CPU是通过锁总线来保障缓存的一致性的，这显然是不太合理的，其他CPU都只能进行等待，过于宽泛的颗粒度导致这个锁效率低下。之后逐渐进化成了写传播模式。</p>
+<ul>
+<li><strong>写传播：</strong>CPU进行缓存数据更新时需要告知其他CPU</li>
+</ul>
+<p>如果出现了多个CPU对同一个数据操作的告知，则要求CPU对同一数据的修改应当保证事务<strong>串行化</strong>，否则会出现问题。<br>举个例子：CPU1、CPU2同时修改了数据A，CPU1把修改数据广播给CPU2、CPU3、CPU4，CPU2将修改数据广播给了CPU1、CPU3、CPU4，如果CPU3先接收到了CPU1的修改后接收到了CPU2的修改，而CPU4的接收顺序与3相反，此时3、4中A数据的值就可能不一致了，CPU1、CPU2互相接收对方的修改数据也会导致数据不一致的情况。<br>CPU的写传播是通过总线进行传播的，单纯的总线传播是无法保障事务的串行化的，需要依赖于缓存一致性协议（MESI）。<br>MESI首先规定了缓存的四种状态：</p>
+<ul>
+<li>_Modified_，已修改</li>
+<li>_Exclusive_，独占</li>
+<li>_Shared_，共享</li>
+<li>_Invalidated_，已失效</li>
+</ul>
+<p><img src="/images/lock-free-programming-1.png" alt="图片_20231214231518.png"></p>
+<h3 id="2-3-3-一些其他的引申"><a href="#2-3-3-一些其他的引申" class="headerlink" title="2.3.3 一些其他的引申"></a>2.3.3 一些其他的引申</h3><p>缓存一致性协议确实可以保障多核CPU缓存一致性，但是由于需要广播所以过于低效，所以实际CPU并不会遵守这个协议，为了提高性能CPU实际上存在着 Store Buffer和Invalidate Queue这两个机制，但是这边不进行展开了。</p>
+<h2 id="2-4-是否可能存在指令乱序的问题？"><a href="#2-4-是否可能存在指令乱序的问题？" class="headerlink" title="2.4 是否可能存在指令乱序的问题？"></a>2.4 是否可能存在指令乱序的问题？</h2><h3 id="2-4-1-跨线程的无依赖指令可能存在乱序"><a href="#2-4-1-跨线程的无依赖指令可能存在乱序" class="headerlink" title="2.4.1 跨线程的无依赖指令可能存在乱序"></a>2.4.1 跨线程的无依赖指令可能存在乱序</h3><p>到目前为止，我们已经从捋清楚了在多核CPU的情况下，对某个atomic变量进行修改操作是原子性的这一事件的声明。接下来我们需要面对另外一个问题：指令乱序。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//共享变量</span></span><br><span class="line"><span class="type">int</span> a, b, c = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    a = <span class="number">1</span>;  <span class="comment">//1</span></span><br><span class="line">    b = a;  <span class="comment">//2</span></span><br><span class="line">    c = <span class="number">1</span>;  <span class="comment">//3</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(c == <span class="number">0</span>) <span class="keyword">continue</span>; <span class="comment">//4 </span></span><br><span class="line">    <span class="built_in">assert</span>(b == <span class="number">1</span>); <span class="comment">//5</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于指令重排的存在可能导致1、3、4、5、2的执行顺序的出现。这将超出我们对共享资源上访问顺序的控制。</p>
+<h3 id="2-4-2-通过内存屏障解决指令乱序问题"><a href="#2-4-2-通过内存屏障解决指令乱序问题" class="headerlink" title="2.4.2 通过内存屏障解决指令乱序问题"></a>2.4.2 通过内存屏障解决指令乱序问题</h3><h4 id="2-4-2-1-内存屏障概念"><a href="#2-4-2-1-内存屏障概念" class="headerlink" title="2.4.2.1 内存屏障概念"></a>2.4.2.1 内存屏障概念</h4><p>内存屏障就是将内存&#x2F;缓存的读写操作过程进行分隔。<br>缓存和内存之间的操作分为 Store 和 Load 两种。</p>
+<ul>
+<li>Store：将处理器缓存的数据刷新到内存中。</li>
+<li>Load：将内存存储的数据拷贝到处理器的缓存中。</li>
+</ul>
+<p><img src="/images/lock-free-programming-2.png" alt="图片_20231214231440.png"><br>从上表中可以看出来，内存屏障的主要作用就是通过<strong>强制读写内存来间接避免指令重排</strong>。<br>所以，在之前那个程序中进行如下更改就可以避免指令重排，强制保障执行顺序为12345：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//共享变量</span></span><br><span class="line"><span class="type">int</span> a, b, c = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    a = <span class="number">1</span>;  <span class="comment">//1</span></span><br><span class="line">    b = a;  <span class="comment">//2</span></span><br><span class="line">    <span class="built_in">StoreStoreBarriers</span>();</span><br><span class="line">    c = <span class="number">1</span>;  <span class="comment">//3</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(c == <span class="number">0</span>) <span class="keyword">continue</span>; <span class="comment">//4 </span></span><br><span class="line">    <span class="built_in">LoadLoadBarriers</span>();</span><br><span class="line">    <span class="built_in">assert</span>(b == <span class="number">1</span>); <span class="comment">//5</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="2-4-2-2-C-对内存屏障提供的接口"><a href="#2-4-2-2-C-对内存屏障提供的接口" class="headerlink" title="2.4.2.2 C++对内存屏障提供的接口"></a>2.4.2.2 C++对内存屏障提供的接口</h4><p>假设在编程过程中存在大量原子读写操作，如果全部操作都不允许指令重排，也就是严格保证顺序一致性，虽然运行结果很容易符合开发者编程预期，降低了开发难度，但是这样会很大程度影响 CPU 执行性能。<br>因此C++ 通过引入内存序接口，提供了控制 CPU 缓存同步的能力给开发者，让内存读写的顺序更加灵活可控。C++ 的内存序允许按照批次保证内存读写顺序，而不必对每一个读写操作保证，也就是说批次和批次之间保持顺序一致性，批次内部保持松散顺序就行。<br>C++提供了六种严格度不同的内存序：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span> <span class="title class_">memory_order</span></span><br><span class="line">&#123;</span><br><span class="line">    memory_order_relaxed,</span><br><span class="line">    memory_order_acquire,</span><br><span class="line">    memory_order_release,</span><br><span class="line">    memory_order_consume,</span><br><span class="line">    memory_order_acq_rel,</span><br><span class="line">    memory_order_seq_cst,</span><br><span class="line">&#125; memory_oder;</span><br></pre></td></tr></table></figure>
+<p><strong>memory_order_relaxed</strong>是最松散的内存序，使用这种内存序的多个内存操作之间同一个线程里还是按照happens-before（happens-before 指的是内存模型中两项操作的顺序关系。例如说操作 A 先于操作 B，也就是说操作 A 发生在操作 B 之前，操作 A 产生的影响能够被操作 B 观察到。这里的「影响」包括：内存中共享变量的值、发送了消息、调用了方法等）的关系执行，但是不同线程之间的执行关系是任意的。<br>在以下代码的示例中，使用了<strong>memory_order_relaxed</strong>内存序，执行顺序有可能是0或者42</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">atomic&lt;<span class="type">int</span>&gt; <span class="title">guard</span><span class="params">(<span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="type">int</span> payload = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在线程1运行的函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread1</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    payload = <span class="number">42</span>;<span class="comment">//1</span></span><br><span class="line">    guard.<span class="built_in">store</span>(<span class="number">1</span>, std::memory_order_relaxed);<span class="comment">//2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在线程2运行的函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread2</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (guard.<span class="built_in">load</span>(std::memory_order_relaxed) != <span class="number">0</span>)<span class="comment">//3</span></span><br><span class="line">    &#123;</span><br><span class="line">        p = payload;<span class="comment">//4</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>memory_order_seq_cst</strong>在底层同时使用了 StoreStore 屏障和 LoadLoad 屏障来实现，因此保证了内存读写顺序和指令顺序一是致的。这种内存序要严格控制每一次内存读写的顺序，所以执行效率是所有内程序里最低的。顺序一致性序列是完全保证内存读写顺序和指令顺序一致的，所以最终的 p 值为 42。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">atomic&lt;<span class="type">int</span>&gt; <span class="title">guard</span><span class="params">(<span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="type">int</span> payload = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在线程1运行的函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread1</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    payload = <span class="number">42</span>;</span><br><span class="line">    guard.<span class="built_in">store</span>(<span class="number">1</span>, std::memory_order_seq_cst);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在线程2运行的函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread2</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (guard.<span class="built_in">load</span>(std::memory_order_seq_cst) != <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        p = payload;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>memory_order_release</strong> 和 <strong>memory_order_acquire</strong>是释放和获取序列。<br>release 底层使用了 StoreStore 屏障，保证在此内存操作之前的所有 Store 操作都不可能重排到此操作之后；也可以理解为这个操作使 CPU 将所有缓存写入了内存，使其他缓存可见。<br>acquire 底层使用了 LoadLoad 屏障，保存在此内存操作之后的所有 Load 操作都不可能重排到此操作之前；也可以理解为这个操作使 CPU 将所有抛弃了所有缓存，重新从内存读取数据。<br>使用这种内存序，保证了 std::memory_order_release 之前的 Store 操作按一个批次同步到其他缓存，同时 std::memory_order_acquire 之后的 Load 操作按一个批次从内存加载数据到缓存，保证了局部的一致性。<br>这种内存序因为是按批次来同步缓存的，所以性能优于顺序一致性序列，但是又没有松散序列高效。<br>在下面代码中，就是保证写线程写完之后，读线程才开始读的局部一致性，所以最终的 p 值为 42。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">atomic&lt;<span class="type">int</span>&gt; <span class="title">guard</span><span class="params">(<span class="number">0</span>)</span></span>;</span><br><span class="line"><span class="type">int</span> payload = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在线程1运行的函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread1</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    payload = <span class="number">42</span>;</span><br><span class="line">    guard.<span class="built_in">store</span>(<span class="number">1</span>, std::memory_order_release);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在线程2运行的函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">thread2</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (guard.<span class="built_in">load</span>(std::memory_order_acquire) != <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        p = payload;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><strong>memory_order_release</strong> 和 **memory_order_consume **是数据依赖序列。<br>memory_order_consume 的底层实现并不使用内存屏障，而是分析数据依赖来保证数据依赖链上的指令的顺序一致性。<br>在从内存加载数据到缓存的时候，根据数据依赖链的顺序去加载。写入内存还是使用 memory_order_release 的策略不变。这种内存序在多平台方面，支持不是很好，有一些硬件设备并不支持这种内存序列，因此它会被退化成获取-释放序列。</p>
+
+    </article>
+    <!-- license -->
+    
+        <div class="license-wrapper">
+            <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
+            <p>Link：<a href="https://liaoyuanf.github.io/2023/12/11/Lock-free-programming/">https://liaoyuanf.github.io/2023/12/11/Lock-free-programming/</a>
+            <p>Publish date：<a href="https://liaoyuanf.github.io/2023/12/11/Lock-free-programming/">December 11th 2023, 11:09:07 pm</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2023/12/11/Lock-free-programming/">December 14th 2023, 11:18:47 pm</a>
+            <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2023/12/16/Chain-of-responsibility/" title="设计模式（一）-- 责任链">
+                    <div class="nextTitle">设计模式（一）-- 责任链</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2023/12/08/Template-programming-1/" title="模版编程技巧(一)--CRTP">
+                    <div class="prevTitle">模版编程技巧(一)--CRTP</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:liaoyuan.feng.1999@gmail.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/LiaoYuanF" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B%E7%9A%84%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">1 无锁编程的背景</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E9%9C%80%E8%A6%81%E4%BA%92%E6%96%A5%E9%94%81%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 需要互斥锁的原因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-%E4%BA%92%E6%96%A5%E9%94%81%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 互斥锁存在的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-1-%E4%BA%92%E6%96%A5%E9%94%81%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.2.1 互斥锁的本质</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-2-%E4%BA%92%E6%96%A5%E9%94%81%E5%B8%A6%E6%9D%A5%E7%9A%84%E5%BC%80%E9%94%80"><span class="toc-number">1.2.2.</span> <span class="toc-text">1.2.2 互斥锁带来的开销</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-2-1-%E4%BA%92%E6%96%A5%E9%94%81%E6%9C%AC%E8%BA%AB%E7%9A%84%E5%BC%80%E9%94%80"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">1.2.2.1 互斥锁本身的开销</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-2-2-%E7%BA%BF%E7%A8%8B%E5%88%87%E6%8D%A2%E7%9A%84%E5%BC%80%E9%94%80"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">1.2.2.2 线程切换的开销</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E6%97%A0%E9%94%81%E7%BC%96%E7%A8%8B%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">2 无锁编程原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E4%BB%8E%E8%87%AA%E6%97%8B%E9%94%81%E8%AF%B4%E8%B5%B7"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 从自旋锁说起</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-atomic%E5%87%AD%E4%BB%80%E4%B9%88%E4%BF%9D%E8%AF%81%E5%8E%9F%E5%AD%90%E6%80%A7"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 atomic凭什么保证原子性?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E5%A6%82%E6%9E%9C%E5%A4%9A%E6%A0%B8%E6%9D%A1%E4%BB%B6%E4%B8%8B%E5%8E%9F%E5%AD%90%E6%80%A7%E8%BF%98%E5%AD%98%E5%9C%A8%E5%90%97%EF%BC%9F"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 如果多核条件下原子性还存在吗？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-1-%E5%8D%95%E6%A0%B8%E5%BF%83CPU%E7%9A%84%E5%86%99%E7%AD%96%E7%95%A5"><span class="toc-number">2.3.1.</span> <span class="toc-text">2.3.1 单核心CPU的写策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-2-%E5%A4%9A%E6%A0%B8%E5%BF%83CPU%E7%9A%84%E5%86%99%E7%AD%96%E7%95%A5"><span class="toc-number">2.3.2.</span> <span class="toc-text">2.3.2 多核心CPU的写策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-3-%E4%B8%80%E4%BA%9B%E5%85%B6%E4%BB%96%E7%9A%84%E5%BC%95%E7%94%B3"><span class="toc-number">2.3.3.</span> <span class="toc-text">2.3.3 一些其他的引申</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-%E6%98%AF%E5%90%A6%E5%8F%AF%E8%83%BD%E5%AD%98%E5%9C%A8%E6%8C%87%E4%BB%A4%E4%B9%B1%E5%BA%8F%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 是否可能存在指令乱序的问题？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-1-%E8%B7%A8%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%97%A0%E4%BE%9D%E8%B5%96%E6%8C%87%E4%BB%A4%E5%8F%AF%E8%83%BD%E5%AD%98%E5%9C%A8%E4%B9%B1%E5%BA%8F"><span class="toc-number">2.4.1.</span> <span class="toc-text">2.4.1 跨线程的无依赖指令可能存在乱序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-2-%E9%80%9A%E8%BF%87%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C%E8%A7%A3%E5%86%B3%E6%8C%87%E4%BB%A4%E4%B9%B1%E5%BA%8F%E9%97%AE%E9%A2%98"><span class="toc-number">2.4.2.</span> <span class="toc-text">2.4.2 通过内存屏障解决指令乱序问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-2-1-%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C%E6%A6%82%E5%BF%B5"><span class="toc-number">2.4.2.1.</span> <span class="toc-text">2.4.2.1 内存屏障概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-2-2-C-%E5%AF%B9%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C%E6%8F%90%E4%BE%9B%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="toc-number">2.4.2.2.</span> <span class="toc-text">2.4.2.2 C++对内存屏障提供的接口</span></a></li></ol></li></ol></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 6
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2024 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span>
+            <a class="archive-post-title" href="/2024/01/17/Cache-friendly-programming/">缓存友好编程</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2023 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/28</span>
+            <a class="archive-post-title" href="/2023/12/28/Thread-safe-circular-queue/">线程安全的循环队列</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/16</span>
+            <a class="archive-post-title" href="/2023/12/16/Chain-of-responsibility/">设计模式（一）-- 责任链</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/11</span>
+            <a class="archive-post-title" href="/2023/12/11/Lock-free-programming/">C++无锁编程(一)</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/08</span>
+            <a class="archive-post-title" href="/2023/12/08/Template-programming-1/">模版编程技巧(一)--CRTP</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/02</span>
+            <a class="archive-post-title" href="/2023/12/02/Todo-plans/">迁移计划</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="design pattern">
+                <span class="iconfont-archer">&#xe606;</span>
+                design pattern
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Cpp">
+                <span class="iconfont-archer">&#xe606;</span>
+                Cpp
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Gpt">
+                <span class="iconfont-archer">&#xe606;</span>
+                Gpt
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Plan">
+                <span class="iconfont-archer">&#xe606;</span>
+                Plan
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "https://liaoyuanf.github.io",
+        root: siteMetaRoot,
+        author: "Flynn"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20211217"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20211217"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>
