@@ -1,5 +1,5 @@
 ---
-title: Git多路Merge算法原理
+title: Git多路Merge原理
 date: 2024-02-01 19:02:57
 tags: 学习杂记
 ---
