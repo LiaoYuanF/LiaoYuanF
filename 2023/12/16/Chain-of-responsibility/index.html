@@ -19,25 +19,25 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="亦称：职责链模式、命令链、CoR、Chain of Command、Chain of Responsibility">
+    <meta name="description" content="责任链模式是一种将请求沿着处理者链依次进行发送的设计模式。系统收到请求后，在链上的每个处理者均可对请求进行处理，或将其传递给链上的下个处理者。每个处理者都作为链上一个可活动的节点，使得责任链模式相较于if-else的分支语句，具有了更好的灵活性和扩展性。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="设计模式（一）-- 责任链">
+<meta property="og:title" content="设计模式（一）：责任链">
 <meta property="og:url" content="https://liaoyuanf.github.io/2023/12/16/Chain-of-responsibility/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="亦称：职责链模式、命令链、CoR、Chain of Command、Chain of Responsibility">
+<meta property="og:description" content="责任链模式是一种将请求沿着处理者链依次进行发送的设计模式。系统收到请求后，在链上的每个处理者均可对请求进行处理，或将其传递给链上的下个处理者。每个处理者都作为链上一个可活动的节点，使得责任链模式相较于if-else的分支语句，具有了更好的灵活性和扩展性。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://liaoyuanf.github.io/images/pattern-1.png">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/design-pattern/1.png">
 <meta property="article:published_time" content="2023-12-16T12:55:02.000Z">
-<meta property="article:modified_time" content="2023-12-16T13:04:21.172Z">
+<meta property="article:modified_time" content="2024-02-01T15:58:07.020Z">
 <meta property="article:author" content="Flynn">
 <meta property="article:tag" content="design pattern">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://liaoyuanf.github.io/images/pattern-1.png">
+<meta name="twitter:image" content="https://liaoyuanf.github.io/images/design-pattern/1.png">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
     
-    <title>设计模式（一）-- 责任链 · Flynn&#39;s Studio</title>
+    <title>设计模式（一）：责任链 · Flynn&#39;s Studio</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -263,7 +263,7 @@
                 <a href="/">Flynn&#39;s Studio</a>
             </div>
             <div class="post-title header-element">
-                <a href="#" class="post-name">设计模式（一）-- 责任链</a>
+                <a href="#" class="post-name">设计模式（一）：责任链</a>
             </div>
         </div>
     
@@ -309,7 +309,7 @@
         <h1 class="intro-title">
             <!-- 主页  -->
             
-                设计模式（一）-- 责任链
+                设计模式（一）：责任链
             <!-- 404 -->
             
         </h1>
@@ -337,7 +337,7 @@
                 <!-- 文章字数统计 -->
                 
                     <div class="post-intro-read">
-                        <span>Word count: <span class="post-count word-count">2.8k</span>Reading time: <span class="post-count reading-time">10 min</span></span>
+                        <span>Word count: <span class="post-count word-count">2.7k</span>Reading time: <span class="post-count reading-time">10 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
@@ -498,16 +498,7 @@
             <div class="container container-unloaded">
                 <main class="main post-page">
     <article class="article-entry">
-        <blockquote>
-<p>亦称：职责链模式、命令链、CoR、Chain of Command、Chain of Responsibility</p>
-</blockquote>
-<p>写文章之前先自我提出问题：</p>
-<ol>
-<li>什么场景下适合用责任链模式？</li>
-<li>责任链模式和观察者模式的区别</li>
-<li>责任链模式适合与什么其他设计模式组合在一起？</li>
-</ol>
-<p>责任链模式是一种将请求沿着处理者链依次进行发送的设计模式。系统收到请求后，在链上的每个处理者均可对请求进行处理，或将其传递给链上的下个处理者。每个处理者都作为链上一个可活动的节点，使得责任链模式相较于if-else的分支语句，具有了更好的灵活性和扩展性。</p>
+        <p>责任链模式是一种将请求沿着处理者链依次进行发送的设计模式。系统收到请求后，在链上的每个处理者均可对请求进行处理，或将其传递给链上的下个处理者。每个处理者都作为链上一个可活动的节点，使得责任链模式相较于if-else的分支语句，具有了更好的灵活性和扩展性。</p>
 <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>在商品上架的审批流系统的开发过程中，有着供应商、商品品控人员、上架风控人员等多种角色参与这一流程，并在其中进行着有先后依赖顺序的不同任务。这一流程会与其他系统（角色权限系统、商品库存系统等）具有深度耦合。<br>在设计之初有着足够简单的业务流程：</p>
 <ol>
 <li>供应商发起上架流程审批，成功则进入2，不成功重新发起1</li>
@@ -551,7 +542,7 @@
 </ul>
 </li>
 </ul>
-<p><img src="/images/pattern-1.png" alt="image.png"><br>责任链模式的核心在于将处理对象整理成链路。</p>
+<p><img src="/images/design-pattern/1.png" alt="image.png"><br>责任链模式的核心在于将处理对象整理成链路。</p>
 <h1 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h1><ul>
 <li>程序需要使用不同方式处理请求<ul>
 <li>将多个处理者连接成一条链。接收到请求后，“询问” 每个处理者是否能对其进行处理。这样所有处理者都有机会来处理请求。</li>
@@ -637,7 +628,7 @@
             <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
             <p>Link：<a href="https://liaoyuanf.github.io/2023/12/16/Chain-of-responsibility/">https://liaoyuanf.github.io/2023/12/16/Chain-of-responsibility/</a>
             <p>Publish date：<a href="https://liaoyuanf.github.io/2023/12/16/Chain-of-responsibility/">December 16th 2023, 8:55:02 pm</a>
-            <p>Update date：<a href="https://liaoyuanf.github.io/2023/12/16/Chain-of-responsibility/">December 16th 2023, 9:04:21 pm</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2023/12/16/Chain-of-responsibility/">February 1st 2024, 11:58:07 pm</a>
             <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     
@@ -891,7 +882,7 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">02/01</span>
-            <a class="archive-post-title" href="/2024/02/01/Git-note/">Git多路Merge算法原理</a>
+            <a class="archive-post-title" href="/2024/02/01/Git-note/">Git多路Merge原理</a>
         </li>
     
         
@@ -918,7 +909,7 @@
         
         <li class="archive-post-item">
             <span class="archive-post-date">12/16</span>
-            <a class="archive-post-title" href="/2023/12/16/Chain-of-responsibility/">设计模式（一）-- 责任链</a>
+            <a class="archive-post-title" href="/2023/12/16/Chain-of-responsibility/">设计模式（一）：责任链</a>
         </li>
     
         
