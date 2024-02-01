@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="Flynn">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="Flynn">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="任何一个傻瓜都能写出计算机可以理解的程序，只有写出人类容易理解的程序才是优秀的程序员。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何重构一个项目">
+<meta property="og:url" content="https://liaoyuanf.github.io/2024/02/02/Refactor-project/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="任何一个傻瓜都能写出计算机可以理解的程序，只有写出人类容易理解的程序才是优秀的程序员。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/refactor-project/1.png">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/refactor-project/2.png">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/refactor-project/3.png">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/refactor-project/4.png">
+<meta property="article:published_time" content="2024-02-01T16:14:01.000Z">
+<meta property="article:modified_time" content="2024-02-01T16:16:49.784Z">
+<meta property="article:author" content="Flynn">
+<meta property="article:tag" content="学习杂记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://liaoyuanf.github.io/images/refactor-project/1.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>如何重构一个项目 · Flynn&#39;s Studio</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20211217" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20211217" as="style">
+    <link rel="stylesheet" href="/css/dark.css">
+    <link rel="stylesheet" href="/css/mobile.css?v=20211217" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20211217" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20211217" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- Google tag (gtag.js) -->
+    
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>Flynn's Studio</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Flynn&#39;s Studio</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">如何重构一个项目</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+    
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                如何重构一个项目
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="学习杂记">学习杂记</a>
+    
+</div>
+
+                
+                <!-- 文章字数统计 -->
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">5.5k</span>Reading time: <span class="post-count reading-time">20 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2024/02/02</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>任何一个傻瓜都能写出计算机可以理解的程序，只有写出人类容易理解的程序才是优秀的程序员。</p>
+<h1 id="什么是重构"><a href="#什么是重构" class="headerlink" title="什么是重构"></a>什么是重构</h1><blockquote>
+<p>重构是对软件内部结构的一种调整，目的是在不改变软件可观察行为前提下，提高其可理解性，降低其修改成本。</p>
+</blockquote>
+<p>根据重构的规模程度、时间长短，我们可以将代码重构分为<strong>小型重构</strong>和<strong>大型重构</strong>。</p>
+<p><strong>小型重构</strong>：是对代码的细节进行重构，主要是针对类、函数、变量等代码级别的重构。比如常见的规范命名，消除超大函数，消除重复代码等。一般这类重构修改的地方比较集中，相对简单，影响比较小、时间较短。所以难度相对要低一些，我们完全可以在日常的随版开发中进行。</p>
+<p><strong>大型重构</strong>：是对代码顶层进行重构，包括对系统结构、模块结构、代码结构、类关系的重构。一般采取的手段是进行<strong>服务分层、业务模块化、组件化、代码抽象复用</strong>等。这类重构可能需要进行原则再定义、模式再定义甚至业务再定义。涉及到的代码调整和修改多，所以影响比较大、耗时较长、带来的风险比较大（项目叫停风险、代码Bug风险、业务漏洞风险）。这就需要我们具备大型项目重构的经验，否则很容易犯错，最后得不偿失。所以大型重构其实是一个“无奈”之举。</p>
+<p>其实大多数人都是不喜欢重构工作的，主要可能有以下几个方面的担忧：</p>
+<ul>
+<li>不知道怎么重构、缺乏重构的经验和方法论。</li>
+<li>很难看到短期收益，如果这些利益是长远的，何必现在就付出这些努力呢？长远看来，说不定当项目收获这些利益时，你已经不负责这块工作了。</li>
+<li>重构可能会破坏现有程序，带来意想不到的bug。</li>
+<li>重构可能需要你付出额外的工作，何况可能待重构的代码并不是你编写的。</li>
+</ul>
+<h1 id="为什么要重构"><a href="#为什么要重构" class="headerlink" title="为什么要重构"></a>为什么要重构</h1><p>程序有两面价值：“今天可以为你做什么” 和 “明天可以为你做什么”。大多数时候，我们都只关注自己今天想要程序做什么。不论是修复错误或是添加特性，都是为了让程序力更强，让它在今天更有价值。但是我为什么还是提倡大家要在合适的时机做代码重构，原因主要有以下几点： </p>
+<ul>
+<li><strong>让软件架构始终保持良好的设计。</strong>改进我们的软件设计，让软件架构向有利的方向发展，能够始终对外提供稳定的服务、从容的面对各种突发的问题。</li>
+<li><strong>增加可维护性，降低维护成本，对团队和个人都是正向的良性循环，让软件更容易理解。</strong>无论是后人阅读前人写的代码，还是事后回顾自己的代码，都能够快速了解整个逻辑，明确业务，轻松的对系统进行维护。</li>
+<li><strong>提高研发速度、缩短人力成本。</strong>大家可能深有体会，一个系统在上线初期，向系统中增加功能时，完成速度非常快，但是如果不注重代码质量，后期向系统中添加一个很小的功能可能就需要花上一周或更长的时间。而代码重构是一种有效的保证代码质量的手段，良好的设计是维护软件开发速度的根本。重构可以帮助你更快速的开发软件，因为它阻止系统腐烂变质，甚至还可以提高设计质量。</li>
+</ul>
+<p><img src="/images/refactor-project/1.png" alt="image.png"></p>
+<h1 id="怎么进行重构"><a href="#怎么进行重构" class="headerlink" title="怎么进行重构"></a>怎么进行重构</h1><h2 id="小型重构"><a href="#小型重构" class="headerlink" title="小型重构"></a>小型重构</h2><p>小型重构一般都是在日常开发中进行，参考的标准即是我们的开发规范和准则，这里就不再详述具体怎么操作。这里罗列一下常见的代码坏味道，因为这类是我们日常小型重构涉及最多的一类场景。来看几种常见的坏味道场景，这些都是基于真实场景列出来的。</p>
+<h3 id="业务语义显性化"><a href="#业务语义显性化" class="headerlink" title="业务语义显性化"></a>业务语义显性化</h3><p>优秀的代码，配合着命名和注释，应该是一首极容易读懂的诗歌，而不是一个需要推敲的字谜。<br>如下图中通过把判断条件封装成函数，通过函数名进行语义显化，可以立竿见影的提升代码的可读性。<br><strong>原代码</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(!PvgContext.getCrmUserId().equals(NIL_VALUE) &amp;&amp; icbuCustomer.getCustomerGroup() != CustomerGroup.AliCrmCustomerGroup.CANCEL_GROUP)</span><br><span class="line"> &#123;</span><br><span class="line">     <span class="comment">//业务逻辑        </span></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>重构后</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(canPickUpToPrivateSea())</span><br><span class="line"> &#123;</span><br><span class="line">     <span class="comment">//业务逻辑        </span></span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">//判断客户能否捡私入海</span></span><br><span class="line"> <span class="keyword">private</span> <span class="type">boolean</span> <span class="title function_">canPickUpToPrivateSea</span><span class="params">()</span>&#123;</span><br><span class="line">     <span class="keyword">if</span>(StringUtil.isBlank(PvgContext.getCrmUserId()))&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">if</span>(<span class="built_in">this</span>.getCustomerGroup() == CustomerGroup.AliCrmCustomerGroup.CANCEL_GROUP)&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="泛型问题"><a href="#泛型问题" class="headerlink" title="泛型问题"></a>泛型问题</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//为了大家理解方便，增加了一些注释</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//msg是从MQ消费到消息</span></span><br><span class="line"><span class="type">Map</span> <span class="variable">ps</span> <span class="operator">=</span> JSON.parseObject(msg); <span class="comment">//</span></span><br><span class="line"><span class="type">String</span> <span class="variable">mobile</span> <span class="operator">=</span> <span class="string">&quot;xxx&quot;</span>；</span><br><span class="line">ps.put(<span class="string">&quot;driverNumber&quot;</span>, mobile);</span><br><span class="line">……</span><br><span class="line"><span class="comment">// 对ps进行操作</span></span><br><span class="line">Set&lt;String&gt; keySet = (Set&lt;String&gt;)ps.keySet();</span><br><span class="line"><span class="keyword">if</span> (keySet.contains(<span class="string">&quot;driverPrice&quot;</span>) &amp;&amp; ps.get(<span class="string">&quot;driverPrice&quot;</span>) != <span class="literal">null</span>) &#123;</span><br><span class="line">	<span class="type">Object</span> <span class="variable">factPrice</span> <span class="operator">=</span> ps.get(<span class="string">&quot;driverPrice&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (factPrice <span class="keyword">instanceof</span> BigDecimal) &#123; 【<span class="number">1</span>】</span><br><span class="line">  	ps.put(<span class="string">&quot;driverPrice&quot;</span>, String.format(<span class="string">&quot;%.2f&quot;</span>,((BigDecimal)factPrice).doubleValue()));</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (factPrice <span class="keyword">instanceof</span> String) &#123; 【<span class="number">2</span>】</span><br><span class="line">  	<span class="type">BigDecimal</span> <span class="variable">refund</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BigDecimal</span>((String)factPrice);</span><br><span class="line">    ps.put(<span class="string">&quot;refundPrice&quot;</span>, refund.stripTrailingZeros().toPlainString());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (keySet.contains(ORDER_TIP_PRICE) &amp;&amp; ps.get(ORDER_TIP_PRICE) != <span class="literal">null</span>) &#123;</span><br><span class="line">	<span class="keyword">if</span> (ps.get(ORDER_TIP_PRICE) <span class="keyword">instanceof</span> BigDecimal) &#123; 【<span class="number">3</span>】</span><br><span class="line">  	<span class="type">BigDecimal</span> <span class="variable">tipPrice</span> <span class="operator">=</span> (BigDecimal)ps.get(ORDER_TIP_PRICE);</span><br><span class="line">    ps.put(ORDER_TIP_PRICE, String.format(PRECISION_ZERO, tipPrice.doubleValue()));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">……</span><br><span class="line"><span class="comment">// 将ps作为传输传递给服务内部底层接口</span></span><br><span class="line">msgSendService.innerOrderTempMessage(msg, ps, orderTotalVO);</span><br><span class="line"></span><br><span class="line"><span class="comment">//看一下底层接口定义</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">innerOrderTempMessage</span><span class="params">(String msg, Map&lt;String, String&gt; ps, PushOrderTotalVO vo)</span>;</span><br></pre></td></tr></table></figure>
+<p>这段真实的代码先不说依靠value类型的不同做不同的业务(【1】【2】【3】)，单看最后一行将泛型已经擦除的map传递给底层的Map&lt;String, String&gt;限定的接口中就是有很大的问题的，未来底层接口使用String value &#x3D; ps.get(XXX)获取一个非String类型时就会出现类型转换异常。</p>
+<h3 id="无病呻吟"><a href="#无病呻吟" class="headerlink" title="无病呻吟"></a>无病呻吟</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Config</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Config</span>();</span><br><span class="line"><span class="comment">// 设置name和md5</span></span><br><span class="line">config.setName(item.getName());</span><br><span class="line">config.setMd5(item.getMd5());</span><br><span class="line"><span class="comment">// 设置值</span></span><br><span class="line">config.setTypeMap(map);</span><br><span class="line"><span class="comment">// 打印日志</span></span><br><span class="line">LOGGER.info(<span class="string">&quot;update done (&#123;&#125;,&#123;&#125;), start replace&quot;</span>, getName(), getMd5());</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">......</span><br><span class="line"></span><br><span class="line"><span class="type">ExpiredConfig</span> <span class="variable">expireConfig</span> <span class="operator">=</span> ConfigManager.getExpiredConfig();</span><br><span class="line"><span class="comment">// 为空初始化</span></span><br><span class="line"><span class="keyword">if</span> (Objects.isNull(expireConfig)) &#123;</span><br><span class="line">  expireConfig = <span class="keyword">new</span> <span class="title class_">ExpiredConfig</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">Map&lt;String, List&lt;TypeItem&gt;&gt; typeMap = ……;   </span><br><span class="line">Map&lt;String, Map&lt;String, Map&lt;String, List&lt;Map&lt;String, Object&gt;&gt;&gt;&gt;&gt; jsonMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 循环一级map</span></span><br><span class="line">jsonMap.forEach((k1, v1) -&gt; &#123;</span><br><span class="line">    <span class="comment">// 循环里面的二级map</span></span><br><span class="line">    v1.forEach((k2, v2) -&gt; &#123;</span><br><span class="line">        <span class="comment">// 循环里面的三级map</span></span><br><span class="line">        v2.forEach((k3, v3) -&gt; &#123;</span><br><span class="line">            <span class="comment">// 循环最里面的list,哎！</span></span><br><span class="line">            v3.forEach(e -&gt; &#123;</span><br><span class="line">                <span class="comment">// 生成key</span></span><br><span class="line">                <span class="type">String</span> <span class="variable">ck</span> <span class="operator">=</span> getKey(k1, k2, k3);</span><br><span class="line">                <span class="comment">// 为空处理</span></span><br><span class="line">                List&lt;TypeItem&gt; types = typeMap.get(ck);</span><br><span class="line">                <span class="keyword">if</span> (CollectionUtils.isEmpty(types)) &#123;</span><br><span class="line">                    types = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">                    typeMap.put(ck, types);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 设置类型</span></span><br><span class="line">            &#125;</span><br><span class="line">       &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码本身一眼就能看明白是在干什么，写代码的人非要在这个地方加一个不关痛痒的注释，这个注释完全是口水话，毫无价值可言。</p>
+<h3 id="if-else过多"><a href="#if-else过多" class="headerlink" title="if-else过多"></a>if-else过多</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 下面截取的get25000OrderState的部分代码</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> List&lt;String&gt; <span class="title function_">get25000OrderState</span><span class="params">(OrderTotalVO orderTotalVO)</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">mainState</span> <span class="operator">=</span> String.valueOf(orderTotalVO.getOrderState());</span><br><span class="line">    <span class="type">String</span> <span class="variable">state</span> <span class="operator">=</span> String.valueOf(orderTotalVO.getOrderState());</span><br><span class="line">    List&lt;String&gt; stateList = Lists.newArrayList();</span><br><span class="line"></span><br><span class="line">    ……</span><br><span class="line"></span><br><span class="line">    <span class="type">DispatchType</span> <span class="variable">dispatchType</span> <span class="operator">=</span> DispatchType.getEnum(orderTotalVO.getDispatchType());</span><br><span class="line">    <span class="type">ServiceType</span> <span class="variable">serviceType</span> <span class="operator">=</span> ServiceType.typeOf(orderTotalVO.getServiceType());</span><br><span class="line">    <span class="keyword">if</span> (serviceType == ServiceType.CHARTERED_CAR) &#123;</span><br><span class="line">        state = state + <span class="string">&quot;_&quot;</span> + serviceType;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (OrderPropertiesEnum.DISPATCH_ORDER.valid(orderTotalVO.getOrderProperties())) &#123;</span><br><span class="line">            state = state + <span class="string">&quot;_dispatch&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span>(OrderPropertiesEnum.ORDER_MARK_CALL_ORDER.valid(orderTotalVO.getOrderProperties()))&#123;		state = state + <span class="string">&quot;_&quot;</span> + dispatchType.getCode() + <span class="string">&quot;_phoneCall&quot;</span>;                                                                                   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            state = state + <span class="string">&quot;_&quot;</span> + dispatchType.getCode() + <span class="string">&quot;_&quot;</span> + pastOrderId;</span><br><span class="line">            <span class="keyword">if</span>(isHighQuality(orderTotalVO.getHighQualityFlag()) &amp;&amp; DispatchType.DRIVER_GRAB.getCode() == dispatchType.getCode())&#123;</span><br><span class="line">                state += <span class="string">&quot;_highQuality&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    stateList.add(state);</span><br><span class="line">    <span class="keyword">if</span> (isOtherPassengerOrder(orderTotalVO)) &#123;</span><br><span class="line">        state = mainState + <span class="string">&quot;_&quot;</span> + <span class="string">&quot;forOther_aly&quot;</span>;</span><br><span class="line">        stateList.add(state);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">BigDecimal</span> <span class="variable">tickOtherPrice</span> <span class="operator">=</span> orderTotalVO.getTicketOtherPrice();</span><br><span class="line">    <span class="keyword">if</span> (tickOtherPrice != <span class="literal">null</span> &amp;&amp; BigDecimal.ZERO.compareTo(tickOtherPrice) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (OrderPropertiesEnum.DISPATCH_ORDER.valid(orderTotalVO.getOrderProperties())) &#123;</span><br><span class="line">            state = mainState + <span class="string">&quot;_&quot;</span> + <span class="string">&quot;driverTicketOtherPrice_dispatch&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            state = state + <span class="string">&quot;_&quot;</span> + <span class="string">&quot;driverTicketOtherPrice&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (OrderPropertiesEnum.DISPATCH_ORDER.valid(orderTotalVO.getOrderProperties())) &#123;</span><br><span class="line">            state = mainState + <span class="string">&quot;_&quot;</span> + <span class="string">&quot;driverTicketPrice_dispatch&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            state = state + <span class="string">&quot;_&quot;</span> + <span class="string">&quot;driverTicketPrice&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    stateList.add(state);</span><br><span class="line">	……</span><br><span class="line">    <span class="keyword">return</span> stateList;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这种在if-else内外都关联业务逻辑的场景，比单纯if-else代码还要复杂，让代码阅读性大大降低，让很多人望而却步。被逼到迫不得已估计开发人员是不会动这样的代码的，因为你不知道你动的一小点，可能会让整个业务系统瘫痪。</p>
+<h3 id="重复代码"><a href="#重复代码" class="headerlink" title="重复代码"></a>重复代码</h3><p>代码坏味道最多的恐怕就是重复代码，如果你在一个以上的地方看到相同的代码结构，那么可以肯定：遗漏了抽象。重复的代码可能成为一个单独的方法或干脆是另一个类。将重复代码放进类似的抽象，增加了你的设计语言的词汇量。其它程序员可以用到你创建的抽象设施。编码变得越来越快，错误越来越少，因为你提升了抽象层级。</p>
+<p>最常见的一种重复场景就是在“<strong>同一个类的两个函数含有相同的表达式</strong>”，这种形式的重复代码可以在当前类提取公用方法，以便在两处复用。<br>还有一种和这类场景相似，就是在“<strong>两个互为兄弟的子类含有相同的表达式</strong>”，这种形式可以将相同的代码提取到共同父类中，针对有差异化的部分，使用抽象方法延迟到子类实现，这就是常见的模板方法设计模式。如果两个毫不相干的类出现了重复代码，这个时候应该考虑将重复代码提炼到一个新类中，然后在这两个类中调用这个新类的方法。</p>
+<h3 id="单一功能职责"><a href="#单一功能职责" class="headerlink" title="单一功能职责"></a>单一功能职责</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BuyerInfoParam</span> &#123;</span><br><span class="line">    <span class="comment">// Required Param</span></span><br><span class="line">    <span class="keyword">private</span> Long buyerCompanyId;</span><br><span class="line">    <span class="keyword">private</span> Long buyerAccountId;</span><br><span class="line">    <span class="keyword">private</span> Long callerCompanyId;</span><br><span class="line">    <span class="keyword">private</span> Long callerAccountId;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String tenantId;</span><br><span class="line">    <span class="keyword">private</span> String bizCode;</span><br><span class="line">    <span class="keyword">private</span> String channel; <span class="comment">//这个Channel在查询中不起任何作用，不应该放在这里</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>功能单一是SRP最基本要求，也就是你一个类的功能职责要单一，这样内聚性才高。比如这个参数类，是用来查询网站Buyer信息的，按照SRP，里面就应该放置查询相关的Field就好了。<br>可是呢事实中下面的三个参数其实查询时根本用不到，而是在组装查询结果的时候用到，这给我阅读代码带来了很大的困惑，因为我一直以为这个channel（客户来源渠道）是一个查询需要的一个重要信息。<br>那么如果和查询无关，为什么要把它放到查询param里面呢，问了才知道，只是为了组装查询结果时拿到数据而已。重构时，果断删掉。<br>Tips：不要为了图方便，而破坏SOLID原则，方便的后果就是代码腐化，看不懂，往后要付出的代价更高。</p>
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><h4 id="函数过长"><a href="#函数过长" class="headerlink" title="函数过长"></a>函数过长</h4><p>一个好的函数必须满足单一职责原则，短小精悍，只做一件事。过长的函数体和身兼数职的方法都不利于阅读，也不利于进行代码复用。</p>
+<h4 id="命名规范"><a href="#命名规范" class="headerlink" title="命名规范"></a>命名规范</h4><p>一个好的命名需要能做到“名副其实、见名知意”，直接了当，不存在歧义。</p>
+<h4 id="不合理的注释"><a href="#不合理的注释" class="headerlink" title="不合理的注释"></a>不合理的注释</h4><p>注释是一把双刃剑，好的注释能够给我们好的指导，不好的注释只会将人误导。针对注释，我们需要做到在整合代码时，也把注释一并进行修改，否则就会出现注释和逻辑不一致。另外，如果代码已清晰的表达了自己的意图，那么注释反而是多余的。</p>
+<h4 id="无用代码"><a href="#无用代码" class="headerlink" title="无用代码"></a>无用代码</h4><p>无用代码有两种方式，一种是没有使用场景，如果这类代码不是工具方法或工具类，而是一些无用的业务代码，那么就需要及时的删除清理。另外一种是用注释符包裹的代码块，这些代码在被打上注释符号的时候就应该被删除。</p>
+<h4 id="过大的类"><a href="#过大的类" class="headerlink" title="过大的类"></a>过大的类</h4><p>一个类做太多事情，维护了太多功能，可读性变差，性能也会下降。举个例子，订单相关的功能你放到一个类A里面，商品库存相关的也放在类A里面，积分相关的还放在类A里面……试想一下，乱七八糟的代码块都往一个类里面塞，还谈啥可读性。应该按单一职责，使用不同的类把代码划分开。</p>
+<h2 id="大型重构"><a href="#大型重构" class="headerlink" title="大型重构"></a>大型重构</h2><p><img src="/images/refactor-project/2.png" alt="image.png"></p>
+<h3 id="事前准备"><a href="#事前准备" class="headerlink" title="事前准备"></a>事前准备</h3><p>事前准备作为重构的第一步，这一部分涉及到的事情比较杂，也是最重要的，如果之前准备不充分，很有可能导致在事中执行或重构上线后产生的结果和预期不一致的现象。<br>在这个阶段大致可分为三步：</p>
+<ul>
+<li><strong>明确重构的内容、目的以及方向、目标</strong></li>
+</ul>
+<p>在这一步里面，最重要的是把方向明确清楚，而且这个方向是经得起大家的质疑，能够至少满足未来三到五年的方向。另外一个就是这次重构的目标，由于技术限制、历史包袱等原因，这个目标可能不是最终的目标，那么需要明确最终目标是怎么样的，从这次重构的这个目标到最终的目标还有哪些事情要做，最好都能够明确下来。</p>
+<ul>
+<li><strong>整理数据</strong></li>
+</ul>
+<p>这一步需要对涉及重构部分的现有业务、架构进行梳理，明确重构的内容在系统的哪个服务层级、属于哪个业务模块，依赖方和被依赖方有哪些，有哪些业务场景，每个场景的数据输入输出是怎样的。这个阶段就会有产出物了，一般会沉淀项目部署、业务架构、技术架构、服务上下游依赖、强弱依赖、项目内部服务分层模型、内容功能依赖模型、输入输出数据流等相关的设计图和文档。<br>附上整个系统的架构和此次重点重构的部分（深色标记部分）<br><img src="/images/refactor-project/3.png" alt="image.png"></p>
+<ul>
+<li><strong>项目立项</strong></li>
+</ul>
+<p>项目立项一般是通过会议进行，对所有参与重构的部门或小组进行重构工作的宣讲，周知大概的时间计划表（粗略的大致时间），明确各组主要负责的人。另外还需要周知重构涉及到哪些业务和场景、大概的重构方式、业务影响可能有哪些，难点及可能在哪些步骤出现瓶颈。<br>注意：会议结束后需要进行会议纪要邮件周知。</p>
+<h3 id="事中执行"><a href="#事中执行" class="headerlink" title="事中执行"></a>事中执行</h3><p>事中执行这一步骤的事情和任务相对来说比较繁重一些，时间付出会相对来说比较多。</p>
+<ul>
+<li><strong>架构设计与评审</strong></li>
+</ul>
+<p>架构设计评审主要是对标准的业务架构、技术架构、数据架构进行设计与评审。通过评审去发现架构和业务上的问题，这个评审一般是团队内评审，如果在一次评审后，发现架构设计并不能被确定，那就需要再调整，直到团队内对方案架构设计都达成一致，才可以进行下一步，评审结果也需要在评审通过后进行邮件周知参与人。<br>该阶段产出物：重构后的服务部署、系统架构、业务架构、标准数据流、服务分层模式、功能模块UML图等。</p>
+<ul>
+<li><strong>详细落地设计方案与评审</strong></li>
+</ul>
+<p>这个落地的设计方案是事中执行最重要的一个方案，关系到后面的研发编码、自测与联调、依赖方对接、QA测试、线下发布与实施预案、线上发布与实施预案、具体工作量、难度、工作瓶颈等。这个详细落地方案需要深入到整个研发、线下测试、上线过程、灰度场景细节处包括AB灰度程序、AB验证程序。<br>在方案设计中最重要的一环是AB验证程序和AB验证开关，这是评估和检验我们是否重构完成的标准依据。一般的AB验证程序大致如下：<br><img src="/images/refactor-project/4.png" alt="image.png"><br>在数据入口处，使用相同的数据，分别向新老流程都发起处理请求。处理结束之后，将处理结果分别打印到日志中。最后通过离线程序比较新老流程处理的结果是否一致。遵循的原则就是在相同入参的情况下，响应的结果也应该一致。<br>在AB程序中，会涉及到两个开关。<strong>灰度开关</strong>（只有它开启了，请求才会被发送到新的流程中进行代码执行）。<strong>执行开关</strong>（如果新流程中涉及到写操作，这里需要用开关控制在新流程写还是在老流程中写）。转发之前需要将灰度开关和执行开关（一般配置到配置中心，能随时调整）写入到线程上下文中，以免出现在修改配置中心开关时，多处获取开关结果不一致。</p>
+<ul>
+<li><strong>代码的编写、测试、线下实施</strong></li>
+</ul>
+<p>这一步就是按照详细设计的方案，进行编码、单测、联调、功能测试、业务测试、QA测试。通过后，在线下模拟上线流程和线上开关实施过程，校验AB程序，检查是否符合预期，新流程代码覆盖度是否达到上线要求。如果线下数据样本比较少，不能覆盖全部场景，需要通过构造流量覆盖所有的场景，保证所有的场景都能符合预期。当线下覆盖度达到预期，并且AB验证程序没有校验出任何异常时，才能执行上线操作。</p>
+<h3 id=""><a href="#" class="headerlink" title=""></a></h3><h3 id="事后观测与复盘"><a href="#事后观测与复盘" class="headerlink" title="事后观测与复盘"></a>事后观测与复盘</h3><p>这个阶段需要在线上按照线下模拟的实施流程进行线上实施，分为上线、放量、修复、下线老逻辑、复盘这样几个阶段。其中最重要最耗费精力的就是放量流程了。</p>
+<ul>
+<li><strong>灰度开关流程</strong></li>
+</ul>
+<p>逐步放量到新的流程中进行观察，可以按照1%、5%、10%、20%、40%、80%、100%的进度进行放量，让新流程逐步的进行代码逻辑覆盖，注意这个阶段不会打开真实执行写操作的开关。当新流程逻辑覆盖度达到要求、并且AB验证的结果都符合预期后，才可以逐步打开执行写操作开关，进行真实业务的执行操作。</p>
+<ul>
+<li><strong>业务执行开关流程</strong></li>
+</ul>
+<p>在灰度新流程的过程中符合预期后，可以逐步打开业务执行写操作开关流程，仍然可以按照一定的比例进行逐步放量，打开写操作后，只有新逻辑执行写操作，老逻辑将关闭写操作。这个阶段需要观察线上错误、指标异常、用户反馈等问题，确保新流程没有任何问题。<br>放量工作结束后，在稳定一定版本后，就可以将老逻辑和AB验证程序进行下线，重构工作结束。如果有条件可以开一个重构复盘会，检查每个参与方是否都达到了重构要求的标准，复盘重构期间遇到的问题、以及解决方案是什么样的，沉淀方法论避免后续的工作出现类似的问题。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><h2 id="代码技巧"><a href="#代码技巧" class="headerlink" title="代码技巧"></a>代码技巧</h2><ul>
+<li>写代码的时候遵循一些基本原则，比如单一原则、依赖接口&#x2F;抽象而不是依赖具体实现。</li>
+<li>严格遵循编码规范、特殊注释使用 TODO、FIXME、XXX 进行注释。</li>
+<li>单元测试、功能测试、接口测试、集成测试是写代码必不可少的工具。</li>
+<li>我们是代码的作者，后人是代码的读者。写代码要时刻审视，做前人栽树后人乘凉、不做前人挖坑后人陪葬的事情。</li>
+<li>不做破窗效应的第一人，不要觉得现在代码已经很烂了，没有必要再改，直接继续堆代码。如果是这样，总有一天自己会被别人的代码恶心到，“出来混迟早是要还的”。</li>
+</ul>
+<h2 id="重构技巧"><a href="#重构技巧" class="headerlink" title="重构技巧"></a>重构技巧</h2><ul>
+<li>从上至下，由外到内进行建模分析，理清各种关系，是重构的重中之重。</li>
+<li>提炼类，复用函数，下沉核心能力，让模块职责清晰明了。</li>
+<li>依赖接口优于依赖抽象，依赖抽象优于依赖实现，类关系能用组合就不要继承。</li>
+<li>类、接口、抽象接口设计时考虑范围限定符，哪些可以重写、哪些不能重写，泛型限定是否准确。</li>
+<li>大型重构做好各种设计和计划，线下模拟好各种场景，上线一定需要AB验证程序，能够随时进行新老切换。</li>
+</ul>
+<p>代码重构的技巧是可以通过学习去掌握，大型项目的重构也可以按照方法论来参考执行。但是有些方法之外的还是需要我们自己去琢磨，有所思、有所想：<br>1、抽象的分析问题能力、结构化思维能力、复杂问题分解能力<br>2、代码洁癖、工匠精神<br>3、产品思维</p>
+
+    </article>
+    <!-- license -->
+    
+        <div class="license-wrapper">
+            <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
+            <p>Link：<a href="https://liaoyuanf.github.io/2024/02/02/Refactor-project/">https://liaoyuanf.github.io/2024/02/02/Refactor-project/</a>
+            <p>Publish date：<a href="https://liaoyuanf.github.io/2024/02/02/Refactor-project/">February 2nd 2024, 12:14:01 am</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2024/02/02/Refactor-project/">February 2nd 2024, 12:16:49 am</a>
+            <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2024/02/01/Git-note/" title="Git多路Merge原理">
+                    <div class="prevTitle">Git多路Merge原理</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:liaoyuan.feng.1999@gmail.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/LiaoYuanF" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%87%8D%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">什么是重构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E9%87%8D%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">为什么要重构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%8E%E4%B9%88%E8%BF%9B%E8%A1%8C%E9%87%8D%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">怎么进行重构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E5%9E%8B%E9%87%8D%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">小型重构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%9A%E5%8A%A1%E8%AF%AD%E4%B9%89%E6%98%BE%E6%80%A7%E5%8C%96"><span class="toc-number">3.1.1.</span> <span class="toc-text">业务语义显性化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.2.</span> <span class="toc-text">泛型问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E7%97%85%E5%91%BB%E5%90%9F"><span class="toc-number">3.1.3.</span> <span class="toc-text">无病呻吟</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#if-else%E8%BF%87%E5%A4%9A"><span class="toc-number">3.1.4.</span> <span class="toc-text">if-else过多</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E5%A4%8D%E4%BB%A3%E7%A0%81"><span class="toc-number">3.1.5.</span> <span class="toc-text">重复代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95%E4%B8%80%E5%8A%9F%E8%83%BD%E8%81%8C%E8%B4%A3"><span class="toc-number">3.1.6.</span> <span class="toc-text">单一功能职责</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.7.</span> <span class="toc-text">其他问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E8%BF%87%E9%95%BF"><span class="toc-number">3.1.7.1.</span> <span class="toc-text">函数过长</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%91%BD%E5%90%8D%E8%A7%84%E8%8C%83"><span class="toc-number">3.1.7.2.</span> <span class="toc-text">命名规范</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8D%E5%90%88%E7%90%86%E7%9A%84%E6%B3%A8%E9%87%8A"><span class="toc-number">3.1.7.3.</span> <span class="toc-text">不合理的注释</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%A0%E7%94%A8%E4%BB%A3%E7%A0%81"><span class="toc-number">3.1.7.4.</span> <span class="toc-text">无用代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%87%E5%A4%A7%E7%9A%84%E7%B1%BB"><span class="toc-number">3.1.7.5.</span> <span class="toc-text">过大的类</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%A7%E5%9E%8B%E9%87%8D%E6%9E%84"><span class="toc-number">3.2.</span> <span class="toc-text">大型重构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E5%89%8D%E5%87%86%E5%A4%87"><span class="toc-number">3.2.1.</span> <span class="toc-text">事前准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E4%B8%AD%E6%89%A7%E8%A1%8C"><span class="toc-number">3.2.2.</span> <span class="toc-text">事中执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.3.</span> <span class="toc-text"></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E5%90%8E%E8%A7%82%E6%B5%8B%E4%B8%8E%E5%A4%8D%E7%9B%98"><span class="toc-number">3.2.4.</span> <span class="toc-text">事后观测与复盘</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E6%8A%80%E5%B7%A7"><span class="toc-number">4.1.</span> <span class="toc-text">代码技巧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8D%E6%9E%84%E6%8A%80%E5%B7%A7"><span class="toc-number">4.2.</span> <span class="toc-text">重构技巧</span></a></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 8
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2024 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/02</span>
+            <a class="archive-post-title" href="/2024/02/02/Refactor-project/">如何重构一个项目</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/01</span>
+            <a class="archive-post-title" href="/2024/02/01/Git-note/">Git多路Merge原理</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span>
+            <a class="archive-post-title" href="/2024/01/17/Cache-friendly-programming/">缓存友好编程</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2023 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/28</span>
+            <a class="archive-post-title" href="/2023/12/28/Thread-safe-circular-queue/">线程安全的循环队列</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/16</span>
+            <a class="archive-post-title" href="/2023/12/16/Chain-of-responsibility/">设计模式（一）：责任链</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/11</span>
+            <a class="archive-post-title" href="/2023/12/11/Lock-free-programming/">C++无锁编程(一)</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/08</span>
+            <a class="archive-post-title" href="/2023/12/08/Template-programming-1/">模版编程技巧(一)--CRTP</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/02</span>
+            <a class="archive-post-title" href="/2023/12/02/Todo-plans/">迁移计划</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="design pattern">
+                <span class="iconfont-archer">&#xe606;</span>
+                design pattern
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Cpp">
+                <span class="iconfont-archer">&#xe606;</span>
+                Cpp
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Gpt">
+                <span class="iconfont-archer">&#xe606;</span>
+                Gpt
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="Plan">
+                <span class="iconfont-archer">&#xe606;</span>
+                Plan
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="学习杂记">
+                <span class="iconfont-archer">&#xe606;</span>
+                学习杂记
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "https://liaoyuanf.github.io",
+        root: siteMetaRoot,
+        author: "Flynn"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20211217"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20211217"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>
