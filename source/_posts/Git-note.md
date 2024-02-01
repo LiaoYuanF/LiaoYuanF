@@ -37,9 +37,11 @@ Git 在存储层，如果文件数据没有改变的文件，Git只是存储指�
 ### 4.2.1 二路合并
 二路合并算法就是讲两个文件进行逐行对别，如果行内容不同就报冲突。
 ```cpp
+//Mine
 console.log("Hello World");
 ```
 ```cpp
+//Theirs
 console.log("World Hello");
 ```
 
@@ -56,30 +58,38 @@ console.log("World Hello");
 - Merge 代表git进行merge后的结果
 #### 4.2.2.1 自动merge场景
 ```cpp
+//Base
 console.log("Hello World");
 ```
 ```cpp
+//Mine
 console.log("Hello World");
 ```
 ```cpp
+//Theirs
 console.log("World Hello");
 ```
 ```cpp
+//Merge
 console.log("World Hello");
 ```
 这样当git进行合并的时候，git就知道是其他人修改了，本地没有更改，git就会自动把最终结果变成如下，这个结构也是大多merge工具的常见布局，比如IDEA
 #### 4.2.2.2 手动merge场景
 需要手动merge的场景就是Mine和Theis都对相同的
 ```cpp
+//Base
 console.log("Hello World");
 ```
 ```cpp
+//Mine
 console.log("World Flynn");
 ```
 ```cpp
+//Theirs
 console.log("World Hello");
 ```
 ```cpp
+//Merge
 <<<<<<<Mine
 console.log("World Flynn");
 =======
