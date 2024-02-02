@@ -19,22 +19,23 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="教育背景西安交通大学 Bachelor 　　　　 工作经历阿里巴巴网络技术有限公司服务端开发工程师  2021年2月 – 2022年7月在工作期间，主要负责供应链业务下商品基础模型开发，以及分布式系统一致性保障的工作。  进行toB的商品基础模型的开发，参与基础商品与货品转换模型的重构。通过改良责任链的设计模式，在重构中降低同tracing调用链的复杂度，优化了10%的程序体积，提升了超过30%的">
-<meta property="og:type" content="website">
-<meta property="og:title" content="About Me">
-<meta property="og:url" content="https://liaoyuanf.github.io/about/index.html">
+    <meta name="description" content="因为是同步写入，所以不具有在生产环境中的实际应用价值，只是基于对无锁写入方案的一个探讨。具体源码可见：Fly-Log">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线程安全的无锁日志实现">
+<meta property="og:url" content="https://liaoyuanf.github.io/2024/02/02/Look-free-log/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="教育背景西安交通大学 Bachelor 　　　　 工作经历阿里巴巴网络技术有限公司服务端开发工程师  2021年2月 – 2022年7月在工作期间，主要负责供应链业务下商品基础模型开发，以及分布式系统一致性保障的工作。  进行toB的商品基础模型的开发，参与基础商品与货品转换模型的重构。通过改良责任链的设计模式，在重构中降低同tracing调用链的复杂度，优化了10%的程序体积，提升了超过30%的">
+<meta property="og:description" content="因为是同步写入，所以不具有在生产环境中的实际应用价值，只是基于对无锁写入方案的一个探讨。具体源码可见：Fly-Log">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2023-12-01T08:44:29.000Z">
-<meta property="article:modified_time" content="2024-01-16T09:05:51.786Z">
+<meta property="article:published_time" content="2024-02-02T05:40:24.000Z">
+<meta property="article:modified_time" content="2024-02-02T05:45:45.498Z">
 <meta property="article:author" content="Flynn">
+<meta property="article:tag" content="工具集合">
 <meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
     
-    <title>About Me · Flynn&#39;s Studio</title>
+    <title>线程安全的无锁日志实现 · Flynn&#39;s Studio</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -222,7 +223,7 @@
         }
     </script>
     
-        <body class="about-body">
+        <body class="post-body">
     
         <!-- header -->
         <header class="header header-mobile">
@@ -252,6 +253,17 @@
         </span>
     </div>
     <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Flynn&#39;s Studio</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">线程安全的无锁日志实现</a>
+            </div>
+        </div>
     
 </header>
 
@@ -286,23 +298,73 @@
     <!-- 主页  -->
     
         
+    <!-- 404页  -->
     
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/intro/about-bg.jpg)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
             
-                About Me
+                线程安全的无锁日志实现
+            <!-- 404 -->
             
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+                
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="工具集合">工具集合</a>
+    
+</div>
+
+                
+                <!-- 文章字数统计 -->
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">736</span>Reading time: <span class="post-count reading-time">2 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2024/02/02</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
         
     </div>
 </div>
@@ -432,33 +494,83 @@
 
             <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
             <div class="container container-unloaded">
-                <!-- 不可以删除，否则会调用 post 的 layout -->
-<main class="main about-page">
+                <main class="main post-page">
     <article class="article-entry">
-        <h2 id="教育背景"><a href="#教育背景" class="headerlink" title="教育背景"></a>教育背景</h2><p><strong>西安交通大学</strong> Bachelor
-　　　　</p>
-<h2 id="工作经历"><a href="#工作经历" class="headerlink" title="工作经历"></a>工作经历</h2><h3 id="阿里巴巴网络技术有限公司"><a href="#阿里巴巴网络技术有限公司" class="headerlink" title="阿里巴巴网络技术有限公司"></a>阿里巴巴网络技术有限公司</h3><p><strong>服务端开发工程师</strong>  2021年2月 – 2022年7月<br>在工作期间，主要负责供应链业务下商品基础模型开发，以及分布式系统一致性保障的工作。</p>
-<ol>
-<li><p>进行toB的商品基础模型的开发，参与基础商品与货品转换模型的重构。通过改良责任链的设计模式，在重构中降低同tracing调用链的复杂度，优化了10%的程序体积，提升了超过30%的接口响应速度。</p>
-</li>
-<li><p>解决TB级别的数据在分布式系统中一致性问题，屏蔽了数据在分布式环境下的回流异常造成的不一致对业务的影响，优化系统可用性从99.95%优化到99.97%。</p>
-</li>
-<li><p>在降本增效的背景下，清洗对外的同质化服务，清理下线冗余的历史rpc接口超过15%，在保证团队的服务稳定性的情况下降低所负责系统的机器成本超过20%。</p>
-</li>
+        <p>因为是同步写入，所以不具有在生产环境中的实际应用价值，只是基于对无锁写入方案的一个探讨。<br>具体源码可见：<a target="_blank" rel="noopener" href="https://github.com/LiaoYuanF/Fly-Log">Fly-Log</a></p>
+<h1 id="日志系统应该满足的要求"><a href="#日志系统应该满足的要求" class="headerlink" title="日志系统应该满足的要求"></a>日志系统应该满足的要求</h1><ol>
+<li>高效，作为一个日志系统，不应该占据太多资源</li>
+<li>简洁，尽量不要引入太复杂的依赖（log4cpp库），给系统开发带来难度</li>
+<li>线程安全，服务端的各个线程都能同时读写日志</li>
+<li>轮替问题，如果半年到一年的日志放到一个文件会导致文件过大</li>
+<li>及时保存，程序故障导致异常退出，如果日志还留在缓冲区就会导致丢失</li>
 </ol>
-<h3 id="某量化投资有限公司"><a href="#某量化投资有限公司" class="headerlink" title="某量化投资有限公司"></a>某量化投资有限公司</h3><p><strong>量化开发工程师</strong>  2022年7月 – 至今<br>从0到1参与高频量化交易系统的开发，负责交易链路中高性能的通信中间件开发和系统整体的微秒级性能优化。</p>
+<h1 id="难点问题及其解决"><a href="#难点问题及其解决" class="headerlink" title="难点问题及其解决"></a>难点问题及其解决</h1><p>当我选择弃用log4cpp等庞大的库的时候，就意味着需要自己去解决3-5等问题。</p>
+<h3 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h3><p>解决线程安全应当考虑不引入锁，因为加锁会带来复杂性和性能问题，所以应当考虑更高效的解决方案。</p>
 <ol>
-<li>负责量化交易系统内的IPC中间件的开发，优化了原先依赖 Domain Socket 的通信方式，借助 Memory Fence 并且合理利用CPU的 Load&#x2F;Store Buffer，实现了完全基于共享内存的无锁编程来实现关键交易路径上的通信。</li>
-<li>负责量化交易链路中关键路径的性能优化，通过对交易主链路上的业务进行算法&#x2F;数据分离以实现模板化改造、对算术运算部分进行CPU缓存友好优化，将业务逻辑内整体穿越时间从80微秒降低至10微秒内。</li>
+<li>使用O_APPEND方式打开文件，这个标记让write写出的内容添加到文件末尾，移动文件指针与输出内容是原子的，由操作系统来保证原子性。因此这个标记保证在多线程&#x2F;多进程调用write也能够保持输出的内容不会相互覆盖错乱，nginx的日志也利用了这个标记来达到多进程不干扰。</li>
+<li>每一次log，都会生成包括了时间的最终输出字符串，调用write，写出到日志系统的文件描述符fd。当write返回时，日志已经写到操作系统，不管程序是否崩溃，只要操作系统不崩溃，那么输出的内容就会保存到日志文件中。</li>
 </ol>
-<h2 id="专业技能"><a href="#专业技能" class="headerlink" title="专业技能"></a>专业技能</h2><ul>
-<li>熟悉C++ 20的新特性，了解模板编程</li>
-<li>了解无锁编程和缓存友好编程，可以在编程中合理地设计程序以提升缓存的命中率</li>
-<li>了解程序性能优化方式，在整个系统的宏观层面优化和微观测时上都有一定的经验</li>
-<li>其他语言的开发能力，包括Rust、Java、Python等</li>
-</ul>
+<h3 id="轮替问题"><a href="#轮替问题" class="headerlink" title="轮替问题"></a>轮替问题</h3><h4 id="有锁方案"><a href="#有锁方案" class="headerlink" title="有锁方案"></a>有锁方案</h4><p>轮替的过程中，需要关闭当前文件并打开新文件，让新的内容写到新文件中，在多线程环境下就需要锁来同步所有线程的日志输出操作，避免写入到不合法的文件描述符中。</p>
+<h4 id="无锁方案"><a href="#无锁方案" class="headerlink" title="无锁方案"></a>无锁方案</h4><p>可以使用posix中的dup2来实现无锁轮替文件。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//轮替时，首先重命名已打开的日志文件，保持打开状态，</span></span><br><span class="line"><span class="built_in">rename</span>(filename, newname);</span><br><span class="line"><span class="comment">//然后创建新的日志文件</span></span><br><span class="line">fd = <span class="built_in">open</span>(filename,...);</span><br><span class="line"><span class="comment">//使用dup2系统函数把fd（新）复制到fd_（旧）上</span></span><br><span class="line"><span class="built_in">dup2</span>(fd, fd_);</span><br><span class="line"><span class="comment">//关闭fd（新）</span></span><br><span class="line"><span class="built_in">close</span>(fd);</span><br></pre></td></tr></table></figure>
+<p>其中dup2是原子操作，它会关闭fd_并且把fd_也指向fd打开的文件。因此fd_这个文件描述符总是保持打开状态，并且值不变，但是前后指向了不同的文件，完全不会影响其他线程调用write(fd_, …)等操作。另一边write也是个原子操作，它与dup2不会交叉进行，因此保证了日志系统的正确性。</p>
 
     </article>
+    <!-- license -->
+    
+        <div class="license-wrapper">
+            <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
+            <p>Link：<a href="https://liaoyuanf.github.io/2024/02/02/Look-free-log/">https://liaoyuanf.github.io/2024/02/02/Look-free-log/</a>
+            <p>Publish date：<a href="https://liaoyuanf.github.io/2024/02/02/Look-free-log/">February 2nd 2024, 1:40:24 pm</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2024/02/02/Look-free-log/">February 2nd 2024, 1:45:45 pm</a>
+            <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2024/02/02/Refactor-project/" title="如何重构一个项目">
+                    <div class="prevTitle">如何重构一个项目</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
 </main>
 
                 <!-- profile -->
@@ -541,6 +653,23 @@
 
         </div>
         <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%E5%BA%94%E8%AF%A5%E6%BB%A1%E8%B6%B3%E7%9A%84%E8%A6%81%E6%B1%82"><span class="toc-number">1.</span> <span class="toc-text">日志系统应该满足的要求</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9A%BE%E7%82%B9%E9%97%AE%E9%A2%98%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3"><span class="toc-number">2.</span> <span class="toc-text">难点问题及其解决</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8"><span class="toc-number">2.0.1.</span> <span class="toc-text">线程安全</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AE%E6%9B%BF%E9%97%AE%E9%A2%98"><span class="toc-number">2.0.2.</span> <span class="toc-text">轮替问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%89%E9%94%81%E6%96%B9%E6%A1%88"><span class="toc-number">2.0.2.1.</span> <span class="toc-text">有锁方案</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%A0%E9%94%81%E6%96%B9%E6%A1%88"><span class="toc-number">2.0.2.2.</span> <span class="toc-text">无锁方案</span></a></li></ol></li></ol></li></ol></li></ol>
+            </div>
         
         <!-- sidebar -->
         <div class="sidebar sidebar-hide">
@@ -813,6 +942,8 @@
         <!-- CNZZ -->
         
         <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
         
         <!-- mermaid -->
         
