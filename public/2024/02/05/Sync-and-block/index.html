@@ -19,18 +19,23 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="https://liaoyuanf.github.io/tags/%E9%9A%8F%E6%84%9F%E6%9D%82%E8%AE%B0/index.html">
+    <meta name="description" content="sync&#x2F;async这组概念和block&#x2F;unblock这组概念太过于相似，以至于很多时候混用它们。虽然有过于咬文嚼字的嫌疑，但还是写一下在我的理解中他们的区别。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="同步与阻塞概念的区别">
+<meta property="og:url" content="https://liaoyuanf.github.io/2024/02/05/Sync-and-block/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="sync&#x2F;async这组概念和block&#x2F;unblock这组概念太过于相似，以至于很多时候混用它们。虽然有过于咬文嚼字的嫌疑，但还是写一下在我的理解中他们的区别。">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-02-05T05:31:33.000Z">
+<meta property="article:modified_time" content="2024-02-05T05:33:17.138Z">
 <meta property="article:author" content="Flynn">
+<meta property="article:tag" content="随感杂记">
 <meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
     
-    <title>Flynn&#39;s Studio</title>
+    <title>同步与阻塞概念的区别 · Flynn&#39;s Studio</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -218,6 +223,8 @@
         }
     </script>
     
+        <body class="post-body">
+    
         <!-- header -->
         <header class="header header-mobile">
     <!-- top read progress line -->
@@ -247,6 +254,17 @@
     </div>
     <!-- toggle banner for post layout -->
     
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Flynn&#39;s Studio</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">同步与阻塞概念的区别</a>
+            </div>
+        </div>
+    
 </header>
 
         <!-- fixed footer -->
@@ -273,24 +291,80 @@
 
 
 
+    height:50vh;
+
 ">
     
     <!-- 主页  -->
     
+        
+    <!-- 404页  -->
+    
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
+            
+                同步与阻塞概念的区别
+            <!-- 404 -->
             
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+                
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="随感杂记">随感杂记</a>
+    
+</div>
+
+                
+                <!-- 文章字数统计 -->
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">729</span>Reading time: <span class="post-count reading-time">2 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2024/02/05</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
         
     </div>
 </div>
@@ -420,95 +494,91 @@
 
             <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
             <div class="container container-unloaded">
-                <main class="main index-page">
-    
-        
-        
-        
-        
-            
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2024/02/05/Sync-and-block/">
-                
-                <span class="abstract-title-text">同步与阻塞概念的区别</span>
-            </a>
-            <div class="abstract-content">
-                <p>sync&#x2F;async这组概念和block&#x2F;unblock这组概念太过于相似，以至于很多时候混用它们。虽然有过于咬文嚼字的嫌疑，但还是写一下在我的理解中他们的区别。</p>
-            </div>
-            <!-- read more -->
-            
-                <div class="abstract-read-more-button">
-                    <a href="/2024/02/05/Sync-and-block/">
-                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </div>
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2024/02/05">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2024/02/05</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="随感杂记">随感杂记</a>
-    
-</div>
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>sync&#x2F;async这组概念和block&#x2F;unblock这组概念太过于相似，以至于很多时候混用它们。虽然有过于咬文嚼字的嫌疑，但还是写一下在我的理解中他们的区别。</p>
+<h1 id="直接解释"><a href="#直接解释" class="headerlink" title="直接解释"></a>直接解释</h1><h2 id="同步-异步"><a href="#同步-异步" class="headerlink" title="同步&#x2F;异步"></a>同步&#x2F;异步</h2><p>关注的是消息通信机制 (synchronous communication&#x2F; asynchronous communication) 。</p>
+<ul>
+<li>所谓同步，就是在发出一个调用时，在没有得到结果之前， 该调用就不返回。</li>
+<li>异步则是相反，调用在发出之后，这个调用就直接返回了，所以没有返回结果。</li>
+</ul>
+<h2 id="阻塞-非阻塞"><a href="#阻塞-非阻塞" class="headerlink" title="阻塞&#x2F;非阻塞"></a>阻塞&#x2F;非阻塞</h2><p>关注的是程序在等待调用结果（消息，返回值）时的状态。</p>
+<ul>
+<li>阻塞调用是指调用结果返回之前，当前线程会被挂起。调用线程只有在得到结果之后才会返回。</li>
+<li>非阻塞调用指在不能立刻得到结果之前，该调用不会阻塞当前线程。</li>
+</ul>
+<h1 id="进程间的场景"><a href="#进程间的场景" class="headerlink" title="进程间的场景"></a>进程间的场景</h1><blockquote>
+<p>进程间的通信是通过 send() 和 receive() 两种基本操作完成的。具体如何实现这两种基础操作，存在着不同的设计。 消息的传递有可能是<strong>阻塞的</strong>或<strong>非阻塞的</strong> – 也被称为<strong>同步</strong>或<strong>异步</strong>的</p>
+</blockquote>
+<p>从进程级通信的维度讨论时， 阻塞和同步（非阻塞和异步）就是一对同义词， 且需要针对<strong>发送方</strong>和<strong>接收方</strong>作区分对待。</p>
+<ul>
+<li>阻塞式发送（blocking send）。发送方进程会被一直阻塞， 直到消息被接受方进程收到。</li>
+<li>非阻塞式发送（nonblocking send）。 发送方进程调用 send() 后， 立即就可以其他操作。</li>
+<li>阻塞式接收（blocking receive）。 接收方调用 receive() 后一直阻塞， 直到消息到达可用。</li>
+<li>非阻塞式接受（nonblocking receive）。 接收方调用 receive() 函数后， 要么得到一个有效的结果， 要么得到一个空值， 即不会被阻塞。</li>
+</ul>
+<h1 id="系统调用的场景"><a href="#系统调用的场景" class="headerlink" title="系统调用的场景"></a>系统调用的场景</h1><p>在 I&#x2F;O 系统调用层面， <strong>非阻塞 IO 系统调用 <strong>和</strong> 异步 IO 系统调用</strong>存在着一定的差别， 它们都不会阻塞进程， 但是返回结果的方式和内容有所差别。</p>
+<ul>
+<li>一个<strong>非阻塞I&#x2F;O 系统调用 read()</strong> 操作立即返回的是任何可以立即拿到的数据， 可以是完整的结果， 也可以是不完整的结果， 还可以是一个空值。</li>
+<li>而<strong>异步I&#x2F;O系统调用 read()</strong> 结果必须是完整的， 但是这个操作完成的通知可以延迟到将来的一个时间点。</li>
+</ul>
+<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>因此，非阻塞系统调用（non-blocking I&#x2F;O system call 与 asynchronous I&#x2F;O system call） 的存在可以用来实现线程级别的 I&#x2F;O 并发， 与通过多进程实现的 I&#x2F;O 并发相比可以减少内存消耗以及进程切换的开销。</p>
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
+    </article>
+    <!-- license -->
     
-        
-        
-        
-        
-            
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2024/02/02/Preformance-optimize-overview/">
-                
-                <span class="abstract-title-text">性能优化概述</span>
-            </a>
-            <div class="abstract-content">
-                <p>性能优化其实是个很泛泛而谈的概念，偶尔翻到了刚入职的时候，在进行性能优化项目前的一份思维导图的草稿，姑且把它简单整理成博文进行归档。现如今越是接触，越是感觉这个问题的复杂程度，从程序的外在表现，到具体的底层优化，都大有文章可做，留待之后再详细地汇总一下思路。</p>
-            </div>
-            <!-- read more -->
-            
-                <div class="abstract-read-more-button">
-                    <a href="/2024/02/02/Preformance-optimize-overview/">
-                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </div>
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2024/02/02">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2024/02/02</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
+        <div class="license-wrapper">
+            <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
+            <p>Link：<a href="https://liaoyuanf.github.io/2024/02/05/Sync-and-block/">https://liaoyuanf.github.io/2024/02/05/Sync-and-block/</a>
+            <p>Publish date：<a href="https://liaoyuanf.github.io/2024/02/05/Sync-and-block/">February 5th 2024, 1:31:33 pm</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2024/02/05/Sync-and-block/">February 5th 2024, 1:33:17 pm</a>
+            <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
     
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2024/02/02/Poxis-api/" title="共享内存（二）：POSIX Api">
+                    <div class="prevTitle">共享内存（二）：POSIX Api</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
     
-        <a class="post-tag" href="javascript:void(0);" data-tags="随感杂记">随感杂记</a>
-    
-</div>
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+
+        </div>
     
-    <!-- paginator  -->
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
     
 </main>
 
@@ -592,6 +662,23 @@
 
         </div>
         <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%B4%E6%8E%A5%E8%A7%A3%E9%87%8A"><span class="toc-number">1.</span> <span class="toc-text">直接解释</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5"><span class="toc-number">1.1.</span> <span class="toc-text">同步&#x2F;异步</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E"><span class="toc-number">1.2.</span> <span class="toc-text">阻塞&#x2F;非阻塞</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="toc-number">2.</span> <span class="toc-text">进程间的场景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="toc-number">3.</span> <span class="toc-text">系统调用的场景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">4.</span> <span class="toc-text">结论</span></a></li></ol>
+            </div>
         
         <!-- sidebar -->
         <div class="sidebar sidebar-hide">
@@ -881,6 +968,8 @@
         <!-- CNZZ -->
         
         <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
         
         <!-- mermaid -->
         
