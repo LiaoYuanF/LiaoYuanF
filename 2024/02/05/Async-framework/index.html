@@ -28,8 +28,9 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://liaoyuanf.github.io/images/async-framework/1.png">
 <meta property="og:image" content="https://liaoyuanf.github.io/images/async-framework/2.png">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/async-framework/3.png">
 <meta property="article:published_time" content="2024-02-05T05:44:59.000Z">
-<meta property="article:modified_time" content="2024-02-05T05:49:03.102Z">
+<meta property="article:modified_time" content="2024-02-05T05:52:42.390Z">
 <meta property="article:author" content="Flynn">
 <meta property="article:tag" content="学习笔记">
 <meta name="twitter:card" content="summary">
@@ -514,7 +515,7 @@
 <h2 id="epoll流程示例"><a href="#epoll流程示例" class="headerlink" title="epoll流程示例"></a>epoll流程示例</h2><p><img src="/images/async-framework/1.png" alt="image.png"><br>使用伪代码写一个epoll的具体实现流程，即如下：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建 epoll 实例</span></span><br><span class="line"><span class="type">int</span> epfd = <span class="built_in">epoll_create</span>(MAX_EVENTS);</span><br><span class="line"><span class="comment">// 向 epoll 实例中添加需要监听的文件描述符，这里是 `listen_sock`</span></span><br><span class="line"><span class="built_in">epoll_ctl_add</span>(epfd, listen_sock, EPOLLIN | EPOLLOUT | EPOLLET);</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>) &#123;</span><br><span class="line">  <span class="comment">// 等待来自 epoll 的通知，通知会在其中的文件描述符状态改变时</span></span><br><span class="line">  <span class="comment">// 由系统通知应用。通知的形式如下：</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// epoll_wait 调用不会立即返回，系统会在其中的文件描述符状态发生</span></span><br><span class="line">  <span class="comment">// 变化时返回</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// epoll_wait 调用返回后：</span></span><br><span class="line">  <span class="comment">// nfds 表示发生变化的文件描述符数量</span></span><br><span class="line">  <span class="comment">// events 会保存当前的事件，它的数量就是 nfds</span></span><br><span class="line">  <span class="type">int</span> nfds = <span class="built_in">epoll_wait</span>(epfd, events, MAX_EVENTS, <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 遍历 events，对事件作出符合应用预期的响应</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; nfds; i++) &#123;</span><br><span class="line">    consume events[i]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <h2 id="epoll的触发模式"><a href="#epoll的触发模式" class="headerlink" title="epoll的触发模式"></a>epoll的触发模式</h2><p>触发模式分为水平触发和边缘触发。</p>
-<h3 id="名词来源"><a href="#名词来源" class="headerlink" title="名词来源"></a>名词来源</h3><p>触发模式是传统电子领域的名词的衍生义，下图为电子领域表示电压变化的时序图。<br>水平触发：在高低电压的峰谷值周期内部会激活对应的电路。<img src="/images/async-framework/2.png" alt="image.png"><br>边缘触发：在高低电压变化的瞬间会激活对应的电路。<br><a href="/images/async-framework/3.png">image.png</a></p>
+<h3 id="名词来源"><a href="#名词来源" class="headerlink" title="名词来源"></a>名词来源</h3><p>触发模式是传统电子领域的名词的衍生义，下图为电子领域表示电压变化的时序图。<br>水平触发：在高低电压的峰谷值周期内部会激活对应的电路。<img src="/images/async-framework/2.png" alt="image.png"><br>边缘触发：在高低电压变化的瞬间会激活对应的电路。<img src="/images/async-framework/3.png" alt="image.png"></p>
 <h3 id="epoll中触发模式实例"><a href="#epoll中触发模式实例" class="headerlink" title="epoll中触发模式实例"></a>epoll中触发模式实例</h3><p>比如我们有一个fd表示刚建立的客户端连接，随后客户端给我们发送了 5 bytes 的内容。<br><strong>如果是水平触发：</strong></p>
 <ul>
 <li>我们的应用会被系统唤醒，因为 fd 此时状态变为了可读</li>
@@ -590,7 +591,7 @@
             <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
             <p>Link：<a href="https://liaoyuanf.github.io/2024/02/05/Async-framework/">https://liaoyuanf.github.io/2024/02/05/Async-framework/</a>
             <p>Publish date：<a href="https://liaoyuanf.github.io/2024/02/05/Async-framework/">February 5th 2024, 1:44:59 pm</a>
-            <p>Update date：<a href="https://liaoyuanf.github.io/2024/02/05/Async-framework/">February 5th 2024, 1:49:03 pm</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2024/02/05/Async-framework/">February 5th 2024, 1:52:42 pm</a>
             <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     
