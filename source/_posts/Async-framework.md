@@ -63,8 +63,7 @@ while(1) {
 ### 名词来源
 触发模式是传统电子领域的名词的衍生义，下图为电子领域表示电压变化的时序图。
 水平触发：在高低电压的峰谷值周期内部会激活对应的电路。![image.png](/images/async-framework/2.png)
-边缘触发：在高低电压变化的瞬间会激活对应的电路。
-[image.png](/images/async-framework/3.png)
+边缘触发：在高低电压变化的瞬间会激活对应的电路。![image.png](/images/async-framework/3.png)
 ### epoll中触发模式实例
 比如我们有一个fd表示刚建立的客户端连接，随后客户端给我们发送了 5 bytes 的内容。
 **如果是水平触发：**
