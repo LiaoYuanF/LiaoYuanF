@@ -19,33 +19,25 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta name="description" content="这篇笔记是对git使用中自动merge算法的好奇，查找了一些资料，简单做了个总结，留以存档。">
+    <meta name="description" content="性能优化其实是个很泛泛而谈的概念，偶尔翻到了刚入职的时候，在进行性能优化项目前的一份思维导图的草稿，姑且把它简单整理成博文进行归档。现如今越是接触，越是感觉这个问题的复杂程度，从程序的外在表现，到具体的底层优化，都大有文章可做，留待之后再详细地汇总一下思路。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Git多路Merge原理">
-<meta property="og:url" content="https://liaoyuanf.github.io/2024/02/01/Git-note/index.html">
+<meta property="og:title" content="性能优化（一）：概述">
+<meta property="og:url" content="https://liaoyuanf.github.io/2024/02/02/Preformance-optimize-1/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="这篇笔记是对git使用中自动merge算法的好奇，查找了一些资料，简单做了个总结，留以存档。">
+<meta property="og:description" content="性能优化其实是个很泛泛而谈的概念，偶尔翻到了刚入职的时候，在进行性能优化项目前的一份思维导图的草稿，姑且把它简单整理成博文进行归档。现如今越是接触，越是感觉这个问题的复杂程度，从程序的外在表现，到具体的底层优化，都大有文章可做，留待之后再详细地汇总一下思路。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://liaoyuanf.github.io/images/git-note/1.png">
-<meta property="og:image" content="https://liaoyuanf.github.io/images/git-note/2.png">
-<meta property="og:image" content="https://liaoyuanf.github.io/images/git-note/3.png">
-<meta property="og:image" content="https://liaoyuanf.github.io/images/git-note/4.png">
-<meta property="og:image" content="https://liaoyuanf.github.io/images/git-note/5.png">
-<meta property="og:image" content="https://liaoyuanf.github.io/images/git-note/6.png">
-<meta property="og:image" content="https://liaoyuanf.github.io/images/git-note/7.png">
-<meta property="og:image" content="https://liaoyuanf.github.io/images/git-note/8.png">
-<meta property="og:image" content="https://liaoyuanf.github.io/images/git-note/9.png">
-<meta property="article:published_time" content="2024-02-01T11:02:57.000Z">
-<meta property="article:modified_time" content="2024-02-01T15:44:22.156Z">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/preformance-optimize-overview/1.png">
+<meta property="article:published_time" content="2024-02-02T06:19:15.000Z">
+<meta property="article:modified_time" content="2024-02-05T06:10:37.894Z">
 <meta property="article:author" content="Flynn">
-<meta property="article:tag" content="学习杂记">
+<meta property="article:tag" content="性能优化">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://liaoyuanf.github.io/images/git-note/1.png">
+<meta name="twitter:image" content="https://liaoyuanf.github.io/images/preformance-optimize-overview/1.png">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
     
-    <title>Git多路Merge原理 · Flynn&#39;s Studio</title>
+    <title>性能优化（一）：概述 · Flynn&#39;s Studio</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -271,7 +263,7 @@
                 <a href="/">Flynn&#39;s Studio</a>
             </div>
             <div class="post-title header-element">
-                <a href="#" class="post-name">Git多路Merge原理</a>
+                <a href="#" class="post-name">性能优化（一）：概述</a>
             </div>
         </div>
     
@@ -317,7 +309,7 @@
         <h1 class="intro-title">
             <!-- 主页  -->
             
-                Git多路Merge原理
+                性能优化（一）：概述
             <!-- 404 -->
             
         </h1>
@@ -337,7 +329,7 @@
                     <div class= post-intro-tags >
     
     
-        <a class="post-tag" href="javascript:void(0);" data-tags="学习杂记">学习杂记</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="性能优化">性能优化</a>
     
 </div>
 
@@ -345,13 +337,13 @@
                 <!-- 文章字数统计 -->
                 
                     <div class="post-intro-read">
-                        <span>Word count: <span class="post-count word-count">1.8k</span>Reading time: <span class="post-count reading-time">6 min</span></span>
+                        <span>Word count: <span class="post-count word-count">462</span>Reading time: <span class="post-count reading-time">1 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
                     <!-- 撰写日期 -->
                     <span class="iconfont-archer post-intro-calander">&#xe676;</span>
-                    <span class="post-intro-time">2024/02/01</span>
+                    <span class="post-intro-time">2024/02/02</span>
                     <!-- busuanzi -->
                     
                         <span id="busuanzi_container_page_pv" class="busuanzi-pv">
@@ -506,88 +498,38 @@
             <div class="container container-unloaded">
                 <main class="main post-page">
     <article class="article-entry">
-        <p>这篇笔记是对git使用中自动merge算法的好奇，查找了一些资料，简单做了个总结，留以存档。</p>
-<h1 id="Git的组成"><a href="#Git的组成" class="headerlink" title="Git的组成"></a>Git的组成</h1><h2 id="工作区-workspace"><a href="#工作区-workspace" class="headerlink" title="工作区(workspace)"></a>工作区(workspace)</h2><p>就是我们当前工作空间，也就是我们当前能在本地文件夹下面看到的文件结构。初始化工作空间或者工作空间clean的时候，文件内容和index暂存区是一致的，随着修改，工作区文件在没有add到暂存区时候，工作区将和暂存区是不一致的。</p>
-<h2 id="暂存区-index"><a href="#暂存区-index" class="headerlink" title="暂存区(index)"></a>暂存区(index)</h2><p>老版本概念也叫Cache区，就是文件暂时存放的地方，所有暂时存放在暂存区中的文件将随着一个commit一起提交到local repository 此时 local repository里面文件将完全被暂存区所取代。暂存区是git架构设计中非常重要和难理解的一部分。后续会有专门的文章研究暂存区。</p>
-<h2 id="本地仓库-local-repository"><a href="#本地仓库-local-repository" class="headerlink" title="本地仓库(local repository)"></a>本地仓库(local repository)</h2><p>git 是分布式版本控制系统，和其他版本控制系统不同的是他可以完全去中心化工作，你可以不用和中央服务器(remote server)进行通信，在本地即可进行全部离线操作，包括log，history，commit，diff等等。 完成离线操作最核心是因为git有一个几乎和远程一样的本地仓库，所有本地离线操作都可以在本地完成，等需要的时候再和远程服务进行交互。</p>
-<h2 id="远程仓库-remote-repository"><a href="#远程仓库-remote-repository" class="headerlink" title="远程仓库(remote repository)"></a>远程仓库(remote repository)</h2><p>中心化仓库，所有人共享，本地仓库会需要和远程仓库进行交互，也就能将其他所有人内容更新到本地仓库把自己内容上传分享给其他人。结构大体和本地仓库一样。</p>
-<h1 id="状态模型"><a href="#状态模型" class="headerlink" title="状态模型"></a>状态模型</h1><h2 id="状态流转"><a href="#状态流转" class="headerlink" title="状态流转"></a>状态流转<img src="/images/git-note/1.png" alt="image.png"></h2><h2 id="文件变化"><a href="#文件变化" class="headerlink" title="文件变化"></a>文件变化</h2><p><img src="/images/git-note/2.png" alt="image.png"></p>
-<h1 id="存储模型"><a href="#存储模型" class="headerlink" title="存储模型"></a>存储模型</h1><p>git 区别与其他 vcs 系统的一个最主要原因之一是：git 对文件版本管理和其他vcs系统对文件版本的实现理念完成不一样。这也就是git 版本管理为什么如此强大的最核心的地方。<br>Svn 等其他的VCS对文件版本的理念是以文件为水平维度，记录每个文件在每个版本下的delta改变。<br>Git 对文件版本的管理理念却是以每次提交为一次快照，提交时对<strong>所有文件</strong>做一次<strong>全量快照</strong>，然后<strong>存储快照引用</strong>。<br>Git 在存储层，如果文件数据没有改变的文件，Git只是存储指向源文件的一个引用，并不会直接多次存储文件，这一点可以在pack 文件中看见。<br>如下图所示：<br><img src="/images/git-note/3.png" alt="image.png"></p>
-<h1 id="Merge算法"><a href="#Merge算法" class="headerlink" title="Merge算法"></a>Merge算法</h1><h2 id="Q-A"><a href="#Q-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><ul>
-<li><p>Q: git merge 是用时间先后决定merge结果的，后面会覆盖前面的?</p>
-</li>
-<li><p>A: git 是分布式的文件版本控制系统，在分布式环境中时间是不可靠的，git是靠三路合并算法进行合并的。</p>
-</li>
-<li><p>git merge 只要两行不相同就一定会报冲突，叫人工解决?</p>
-</li>
-<li><p>答：git 尽管两行内容不一样，smart git 会进行取舍，当git无法进行取舍的时候才会进行人工解决冲突。</p>
-</li>
-</ul>
-<h2 id="合并算法"><a href="#合并算法" class="headerlink" title="合并算法"></a>合并算法</h2><h3 id="二路合并"><a href="#二路合并" class="headerlink" title="二路合并"></a>二路合并</h3><p>二路合并算法就是讲两个文件进行逐行对别，如果行内容不同就报冲突。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Mine</span></span><br><span class="line">console.<span class="built_in">log</span>(<span class="string">&quot;Hello World&quot;</span>);</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Theirs</span></span><br><span class="line">console.<span class="built_in">log</span>(<span class="string">&quot;World Hello&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>Mine 代表你本地修改</li>
-<li>Theirs 代表其他人修改</li>
-</ul>
-<p>假设对于同一个文件，出现你和其他人一起修改，此时如果git来进行合并，git就懵逼了，因为Git既不敢得罪你(Mine)，也不能得罪他们(Theirs) ，无理无据，git只能让你自己搞了，但是这种情况太多了而且其实也没有必要。</p>
-<h3 id="三路合并"><a href="#三路合并" class="headerlink" title="三路合并"></a>三路合并</h3><p>三路合并就是先找出一个基准，然后以基准为Base 进行合并，如果2个文件相对基准(base)都发生了改变 那git 就报冲突，然后让你人工决断。否则，git将取相对于基准(base)变化的那个为最终结果。</p>
-<ul>
-<li>Base 代表上一个版本，即公共祖先</li>
-<li>Mine 代表你本地修改</li>
-<li>Theirs 代表其他人修改</li>
-<li>Merge 代表git进行merge后的结果</li>
-</ul>
-<h4 id="自动merge场景"><a href="#自动merge场景" class="headerlink" title="自动merge场景"></a>自动merge场景</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Base</span></span><br><span class="line">console.<span class="built_in">log</span>(<span class="string">&quot;Hello World&quot;</span>);</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Mine</span></span><br><span class="line">console.<span class="built_in">log</span>(<span class="string">&quot;Hello World&quot;</span>);</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Theirs</span></span><br><span class="line">console.<span class="built_in">log</span>(<span class="string">&quot;World Hello&quot;</span>);</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Merge</span></span><br><span class="line">console.<span class="built_in">log</span>(<span class="string">&quot;World Hello&quot;</span>);</span><br></pre></td></tr></table></figure>
-<p>这样当git进行合并的时候，git就知道是其他人修改了，本地没有更改，git就会自动把最终结果变成如下，这个结构也是大多merge工具的常见布局，比如IDEA</p>
-<h4 id="手动merge场景"><a href="#手动merge场景" class="headerlink" title="手动merge场景"></a>手动merge场景</h4><p>需要手动merge的场景就是Mine和Theis都对相同的</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Base</span></span><br><span class="line">console.<span class="built_in">log</span>(<span class="string">&quot;Hello World&quot;</span>);</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Mine</span></span><br><span class="line">console.<span class="built_in">log</span>(<span class="string">&quot;World Flynn&quot;</span>);</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Theirs</span></span><br><span class="line">console.<span class="built_in">log</span>(<span class="string">&quot;World Hello&quot;</span>);</span><br></pre></td></tr></table></figure>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Merge</span></span><br><span class="line">&lt;&lt;&lt;&lt;&lt;&lt;&lt;Mine</span><br><span class="line">console.<span class="built_in">log</span>(<span class="string">&quot;World Flynn&quot;</span>);</span><br><span class="line">=======</span><br><span class="line">console.<span class="built_in">log</span>(<span class="string">&quot;World Hello&quot;</span>);</span><br><span class="line">&gt;&gt;&gt;&gt;&gt;&gt;&gt;Theirs</span><br></pre></td></tr></table></figure>
-<p>在这种情况下，Mine和Theirs都对分支进行了修改，git重新遇到了二路合并的问题，需要手动解决冲突。</p>
-<h4 id="三路合并示例"><a href="#三路合并示例" class="headerlink" title="三路合并示例"></a>三路合并示例</h4><p><img src="/images/git-note/4.png" alt="image.png"></p>
+        <p>性能优化其实是个很泛泛而谈的概念，偶尔翻到了刚入职的时候，在进行性能优化项目前的一份思维导图的草稿，姑且把它简单整理成博文进行归档。现如今越是接触，越是感觉这个问题的复杂程度，从程序的外在表现，到具体的底层优化，都大有文章可做，留待之后再详细地汇总一下思路。</p>
+<h1 id="性能优化的目的"><a href="#性能优化的目的" class="headerlink" title="性能优化的目的"></a>性能优化的目的</h1><p>在计算机硬件&#x2F;工程师价格和收益之间找一个平衡点。</p>
+<h1 id="性能优化流程"><a href="#性能优化流程" class="headerlink" title="性能优化流程"></a>性能优化流程</h1><p><img src="/images/preformance-optimize-overview/1.png" alt="image.png"></p>
+<h1 id="程序性能优化方法"><a href="#程序性能优化方法" class="headerlink" title="程序性能优化方法"></a>程序性能优化方法</h1><p>性能问题分析完成后，需要进行性能优化。根据性能分析结果的不同，优化方法也各有不同。</p>
+<h2 id="针对IO瓶颈的性能优化"><a href="#针对IO瓶颈的性能优化" class="headerlink" title="针对IO瓶颈的性能优化"></a>针对IO瓶颈的性能优化</h2><p>每次IO操作大概在10ms量级，100次就需要1秒左右，因此尽量避免不必要的IO操作。具体做法如下：</p>
 <ol>
-<li>上面①~⑨代表一个个修改集合(commit)，每个commit都有一个唯一7位SHA-1唯一表示。</li>
-<li>①，②，④，⑦修改集串联起来就是一个链，此时用master指向这个集合就代表master分支，<strong>分支本质是一个快照。</strong></li>
-<li>同样dev分支也是由一个个commit组成</li>
+<li>预先顺序读文件避免随机访问。</li>
+<li>合并多个小文件为单个大文件。</li>
+<li>优化动态库文件的加载。</li>
+<li>交错IO时间和CPU时间。</li>
 </ol>
-<p>现在在dev分支上由于各种原因要运行git merge master需要把master分支的更新合并到dev分支上，本质上就是合并修改集 ⑦(Mine) 和 ⑧(Theirs) ，此时我们要利用<strong>DAG(有向无环图)<strong>相关算法找到我们</strong>公共的祖先</strong> ②（Base）然后进行<strong>三方合并</strong>，最后合并生成 ⑨</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//找出公共祖先的commitId(Base)</span></span><br><span class="line">git merge-base --all <span class="title function_">commit_id1</span><span class="params">(Yours/Theirs)</span> commit_id2(Yours/Theirs) </span><br></pre></td></tr></table></figure>
-<p>在实际开发环境中，分支的Graph更为复杂，但基本的算法原理不变。<br><img src="/images/git-note/5.png" alt="image.png"></p>
-<h3 id="递归三路合并"><a href="#递归三路合并" class="headerlink" title="递归三路合并"></a>递归三路合并</h3><h4 id="公共祖先不唯一问题"><a href="#公共祖先不唯一问题" class="headerlink" title="公共祖先不唯一问题"></a>公共祖先不唯一问题</h4><p><strong>抽象化</strong></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">---<span class="number">1</span>---o---A</span><br><span class="line">    \ /</span><br><span class="line">     X</span><br><span class="line">    / \</span><br><span class="line">---<span class="number">2</span>---o---o---B</span><br></pre></td></tr></table></figure>
-<p><strong>具体化</strong><br><img src="/images/git-note/6.png" alt="image.png"></p>
-<blockquote>
-<p>（这部分图有点问题，阅读理解困难，可跳过直接看问题）<br>简短描述下 如何会出现上面的图：</p>
+<h2 id="针对计算密集的性能优化"><a href="#针对计算密集的性能优化" class="headerlink" title="针对计算密集的性能优化"></a>针对计算密集的性能优化</h2><p>计算密集的性能问题主要有内存分配性能、字符串操作、共享变量的互斥锁保护等，具体优化方法如下：</p>
 <ol>
-<li>在master分支上新建文件foo.c ,写入数据”A”到文件里面</li>
-<li>新建分支task2 <strong>git checkout -b task2 0</strong>,0 代表commit Id</li>
-<li>新建并提交commit ① 和 ③</li>
-<li>切换分支到master，新建并提交commit ②</li>
-<li>新建并修改foo.c文件中数据为”B”,并提交commit ④</li>
-<li>merge commit ③ <strong>git merge task2</strong>,生成commit ⑥</li>
-<li>新建分支task1 <strong>git chekcout -b ④</strong></li>
-<li>在task1 merge ③ <strong>git merge task2</strong> 生成commit ⑤</li>
-<li>新建commit ⑦，并修改foo.c文件内容为”C”</li>
-<li>切换分支到master上，并准备merge task1 分支(merge ⑦-&gt; ⑥)</li>
+<li>去除冗余代码。</li>
+<li>字符串操作优化。</li>
+<li>减少内存分配、释放操作，例如使用内存池。</li>
+<li>减少不必要的互斥锁操作。</li>
+<li>根据性能需求选择数据结构。</li>
+<li>延迟工作，按需执行。</li>
+<li>减少跨进程的调用。</li>
+<li>使用高性能的函数库。</li>
 </ol>
-</blockquote>
-<p>我们如果要合并 ⑦(source) -&gt; ⑥(destination)<br>会发现有⑥和⑦有两个最佳公共祖先③和④<br>以③为公共祖先时需要手动解决冲突 &#x2F;foo.c &#x3D; BC???<br><img src="/images/git-note/7.png" alt="image.png"><br>以④作为公共祖先将得到 &#x2F;foo.c&#x3D;C<br><img src="/images/git-note/8.png" alt="image.png"></p>
-<h4 id="git解法"><a href="#git解法" class="headerlink" title="git解法"></a>git解法</h4><p>git 既不是直接用③，也不是用④，而是将2个祖先进行合并成一个虚拟的 X &#x2F;foo.c &#x3D; B。因为③ 和 ④ 公共祖先是 0&#x2F;foo.c &#x3D; A，根据③和④以及他们的公共祖先进行递归三路归并进行合成的到虚拟的 X &#x2F;foo.c &#x3D; B。<br><img src="/images/git-note/9.png" alt="image.png"></p>
+<h2 id="C-特性相关的性能优化"><a href="#C-特性相关的性能优化" class="headerlink" title="C++特性相关的性能优化"></a>C++特性相关的性能优化</h2><p>C++语言特性相关的性能优化包括模板展开、内联函数、引用、编译优化选项等。</p>
 
     </article>
     <!-- license -->
     
         <div class="license-wrapper">
             <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
-            <p>Link：<a href="https://liaoyuanf.github.io/2024/02/01/Git-note/">https://liaoyuanf.github.io/2024/02/01/Git-note/</a>
-            <p>Publish date：<a href="https://liaoyuanf.github.io/2024/02/01/Git-note/">February 1st 2024, 7:02:57 pm</a>
-            <p>Update date：<a href="https://liaoyuanf.github.io/2024/02/01/Git-note/">February 1st 2024, 11:44:22 pm</a>
+            <p>Link：<a href="https://liaoyuanf.github.io/2024/02/02/Preformance-optimize-1/">https://liaoyuanf.github.io/2024/02/02/Preformance-optimize-1/</a>
+            <p>Publish date：<a href="https://liaoyuanf.github.io/2024/02/02/Preformance-optimize-1/">February 2nd 2024, 2:19:15 pm</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2024/02/02/Preformance-optimize-1/">February 5th 2024, 2:10:37 pm</a>
             <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
         </div>
     
@@ -596,16 +538,16 @@
         <li class="next">
             
                 <div class="nextSlogan">Next Post</div>
-                <a href="/2024/02/02/Refactor-project/" title="如何重构一个项目">
-                    <div class="nextTitle">如何重构一个项目</div>
+                <a href="/2024/02/02/Systemv-api/" title="共享内存（一）：SystemV Api">
+                    <div class="nextTitle">共享内存（一）：SystemV Api</div>
                 </a>
             
         </li>
         <li class="previous">
             
                 <div class="prevSlogan">Previous Post</div>
-                <a href="/2023/12/28/Look-free-circular-queue/" title="线程安全的无锁循环队列">
-                    <div class="prevTitle">线程安全的无锁循环队列</div>
+                <a href="/2024/02/02/Look-free-log/" title="线程安全的无锁日志">
+                    <div class="prevTitle">线程安全的无锁日志</div>
                 </a>
             
         </li>
@@ -738,7 +680,7 @@
                 <div class="toc-catalog">
                     <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
                 </div>
-                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Git%E7%9A%84%E7%BB%84%E6%88%90"><span class="toc-number">1.</span> <span class="toc-text">Git的组成</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8C%BA-workspace"><span class="toc-number">1.1.</span> <span class="toc-text">工作区(workspace)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9A%82%E5%AD%98%E5%8C%BA-index"><span class="toc-number">1.2.</span> <span class="toc-text">暂存区(index)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E4%BB%93%E5%BA%93-local-repository"><span class="toc-number">1.3.</span> <span class="toc-text">本地仓库(local repository)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93-remote-repository"><span class="toc-number">1.4.</span> <span class="toc-text">远程仓库(remote repository)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">状态模型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E6%B5%81%E8%BD%AC"><span class="toc-number">2.1.</span> <span class="toc-text">状态流转</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8F%98%E5%8C%96"><span class="toc-number">2.2.</span> <span class="toc-text">文件变化</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E6%A8%A1%E5%9E%8B"><span class="toc-number">3.</span> <span class="toc-text">存储模型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Merge%E7%AE%97%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">Merge算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Q-A"><span class="toc-number">4.1.</span> <span class="toc-text">Q&amp;A</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%88%E5%B9%B6%E7%AE%97%E6%B3%95"><span class="toc-number">4.2.</span> <span class="toc-text">合并算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E8%B7%AF%E5%90%88%E5%B9%B6"><span class="toc-number">4.2.1.</span> <span class="toc-text">二路合并</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E8%B7%AF%E5%90%88%E5%B9%B6"><span class="toc-number">4.2.2.</span> <span class="toc-text">三路合并</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8merge%E5%9C%BA%E6%99%AF"><span class="toc-number">4.2.2.1.</span> <span class="toc-text">自动merge场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8merge%E5%9C%BA%E6%99%AF"><span class="toc-number">4.2.2.2.</span> <span class="toc-text">手动merge场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E8%B7%AF%E5%90%88%E5%B9%B6%E7%A4%BA%E4%BE%8B"><span class="toc-number">4.2.2.3.</span> <span class="toc-text">三路合并示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%92%E5%BD%92%E4%B8%89%E8%B7%AF%E5%90%88%E5%B9%B6"><span class="toc-number">4.2.3.</span> <span class="toc-text">递归三路合并</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88%E4%B8%8D%E5%94%AF%E4%B8%80%E9%97%AE%E9%A2%98"><span class="toc-number">4.2.3.1.</span> <span class="toc-text">公共祖先不唯一问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#git%E8%A7%A3%E6%B3%95"><span class="toc-number">4.2.3.2.</span> <span class="toc-text">git解法</span></a></li></ol></li></ol></li></ol></li></ol>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E7%9B%AE%E7%9A%84"><span class="toc-number">1.</span> <span class="toc-text">性能优化的目的</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%B5%81%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">性能优化流程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%96%B9%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">程序性能优化方法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%92%88%E5%AF%B9IO%E7%93%B6%E9%A2%88%E7%9A%84%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="toc-number">3.1.</span> <span class="toc-text">针对IO瓶颈的性能优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%92%88%E5%AF%B9%E8%AE%A1%E7%AE%97%E5%AF%86%E9%9B%86%E7%9A%84%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="toc-number">3.2.</span> <span class="toc-text">针对计算密集的性能优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C-%E7%89%B9%E6%80%A7%E7%9B%B8%E5%85%B3%E7%9A%84%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="toc-number">3.3.</span> <span class="toc-text">C++特性相关的性能优化</span></a></li></ol></li></ol>
             </div>
         
         <!-- sidebar -->
