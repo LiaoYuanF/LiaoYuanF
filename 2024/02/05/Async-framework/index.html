@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="Flynn">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="Flynn">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="最近有使用到事件框架，因此对事件框架的学习简单做一个学习笔记。因为我使用的是libuv，所以后文中部分跟事件框架特性相关的内容和图片是基于libuv的官方文档而言的，不泛指一切事件框架。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="异步事件框架学习">
+<meta property="og:url" content="https://liaoyuanf.github.io/2024/02/05/Async-framework/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="最近有使用到事件框架，因此对事件框架的学习简单做一个学习笔记。因为我使用的是libuv，所以后文中部分跟事件框架特性相关的内容和图片是基于libuv的官方文档而言的，不泛指一切事件框架。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/async-framework/1.png">
+<meta property="og:image" content="https://liaoyuanf.github.io/images/async-framework/2.png">
+<meta property="article:published_time" content="2024-02-05T05:44:59.000Z">
+<meta property="article:modified_time" content="2024-02-05T05:49:03.102Z">
+<meta property="article:author" content="Flynn">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://liaoyuanf.github.io/images/async-framework/1.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>异步事件框架学习 · Flynn&#39;s Studio</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20211217" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20211217" as="style">
+    <link rel="stylesheet" href="/css/dark.css">
+    <link rel="stylesheet" href="/css/mobile.css?v=20211217" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20211217" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20211217" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+    <!-- Google tag (gtag.js) -->
+    
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>Flynn's Studio</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Flynn&#39;s Studio</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">异步事件框架学习</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+    
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                异步事件框架学习
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="学习笔记">学习笔记</a>
+    
+</div>
+
+                
+                <!-- 文章字数统计 -->
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">4.2k</span>Reading time: <span class="post-count reading-time">16 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2024/02/05</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>最近有使用到事件框架，因此对事件框架的学习简单做一个学习笔记。<br>因为我使用的是libuv，所以后文中部分跟事件框架特性相关的内容和图片是基于libuv的官方文档而言的，不泛指一切事件框架。</p>
+<h1 id="核心构成"><a href="#核心构成" class="headerlink" title="核心构成"></a>核心构成</h1><p>event-loop + 基于I&#x2F;O或者其他事件通知的回调函数。<br>在事件驱动编程中，程序会关注每一个事件，并且对每一个事件的发生做出反应。libuv会负责监听各个来源的事件。用户通过注册回调函数在监听到事件的时候被调用。event-loop会一直保持运行状态。用伪代码描述如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> there are still events to process:</span><br><span class="line">    e = get the next event</span><br><span class="line">    <span class="keyword">if</span> there is a callback associated with e:</span><br><span class="line">        call the callback</span><br></pre></td></tr></table></figure>
+<h1 id="异步实现"><a href="#异步实现" class="headerlink" title="异步实现"></a>异步实现</h1><h2 id="需要非阻塞原因"><a href="#需要非阻塞原因" class="headerlink" title="需要非阻塞原因"></a>需要非阻塞原因</h2><p>系统编程中出现输入输出的场景多于数据处理。问题在于传统的输入输出函数(例如read，fprintf)都是阻塞式的。在任务完成前函数不会返回，程序在这段时间内什么也做不了。这导致远低于cpu处理速度的IO传输速度是高性能系统的主要障碍。</p>
+<h2 id="解决方案一：多线程"><a href="#解决方案一：多线程" class="headerlink" title="解决方案一：多线程"></a>解决方案一：多线程</h2><p>每一个阻塞的I&#x2F;O操作都会被分配到各个线程中。当某个线程一旦阻塞，处理器就可以调度处理其他需要cpu资源的线程（操作系统自行分配cpu资源，采用非阻塞方式来轮流执行任务）。</p>
+<h2 id="解决方案二：异步"><a href="#解决方案二：异步" class="headerlink" title="解决方案二：异步"></a>解决方案二：异步</h2><p>现代操作系统大多提供了基于事件通知的子系统。为异步的实现提供了基础。<br>例如正常的socket上的read调用会发生阻塞，直到发送方把信息发送过来。但是，实际上程序可以请求操作系统监视socket事件的到来，并将这个事件通知放到事件队列中。这样，程序就可以很简单地检查事件是否到来，通知正在处理其他任务的cpu处理事件，及时地获取数据。<br>异步的具体表现是程序可以在时空上地某一端表达对某事件的兴趣，并在时空地另一端被动地获取到数据。非阻塞是因为程序不是主动地请求等待，而是被动地被事件调用，期间可以自由地做其他的事。</p>
+<h1 id="异步实现的基础"><a href="#异步实现的基础" class="headerlink" title="异步实现的基础"></a>异步实现的基础</h1><p>为了追本溯源，以 epoll 为例分析可实现异步的操作系统基础。</p>
+<h2 id="epoll简介"><a href="#epoll简介" class="headerlink" title="epoll简介"></a>epoll简介</h2><p>epoll 是由 Linux 内核提供的一个系统调用，我们的应用程序可以通过它：</p>
+<ul>
+<li>告诉系统帮助我们同时监控多个文件描述符</li>
+<li>当这其中的一个或者多个文件描述符的 I&#x2F;O 可操作状态改变时，我们的应用程序会接收到来自系统的事件提示（event notification）</li>
+</ul>
+<h2 id="epoll流程示例"><a href="#epoll流程示例" class="headerlink" title="epoll流程示例"></a>epoll流程示例</h2><p><img src="/images/async-framework/1.png" alt="image.png"><br>使用伪代码写一个epoll的具体实现流程，即如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建 epoll 实例</span></span><br><span class="line"><span class="type">int</span> epfd = <span class="built_in">epoll_create</span>(MAX_EVENTS);</span><br><span class="line"><span class="comment">// 向 epoll 实例中添加需要监听的文件描述符，这里是 `listen_sock`</span></span><br><span class="line"><span class="built_in">epoll_ctl_add</span>(epfd, listen_sock, EPOLLIN | EPOLLOUT | EPOLLET);</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>) &#123;</span><br><span class="line">  <span class="comment">// 等待来自 epoll 的通知，通知会在其中的文件描述符状态改变时</span></span><br><span class="line">  <span class="comment">// 由系统通知应用。通知的形式如下：</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// epoll_wait 调用不会立即返回，系统会在其中的文件描述符状态发生</span></span><br><span class="line">  <span class="comment">// 变化时返回</span></span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">  <span class="comment">// epoll_wait 调用返回后：</span></span><br><span class="line">  <span class="comment">// nfds 表示发生变化的文件描述符数量</span></span><br><span class="line">  <span class="comment">// events 会保存当前的事件，它的数量就是 nfds</span></span><br><span class="line">  <span class="type">int</span> nfds = <span class="built_in">epoll_wait</span>(epfd, events, MAX_EVENTS, <span class="number">-1</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 遍历 events，对事件作出符合应用预期的响应</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; nfds; i++) &#123;</span><br><span class="line">    consume events[i]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="epoll的触发模式"><a href="#epoll的触发模式" class="headerlink" title="epoll的触发模式"></a>epoll的触发模式</h2><p>触发模式分为水平触发和边缘触发。</p>
+<h3 id="名词来源"><a href="#名词来源" class="headerlink" title="名词来源"></a>名词来源</h3><p>触发模式是传统电子领域的名词的衍生义，下图为电子领域表示电压变化的时序图。<br>水平触发：在高低电压的峰谷值周期内部会激活对应的电路。<img src="/images/async-framework/2.png" alt="image.png"><br>边缘触发：在高低电压变化的瞬间会激活对应的电路。<br><a href="/images/async-framework/3.png">image.png</a></p>
+<h3 id="epoll中触发模式实例"><a href="#epoll中触发模式实例" class="headerlink" title="epoll中触发模式实例"></a>epoll中触发模式实例</h3><p>比如我们有一个fd表示刚建立的客户端连接，随后客户端给我们发送了 5 bytes 的内容。<br><strong>如果是水平触发：</strong></p>
+<ul>
+<li>我们的应用会被系统唤醒，因为 fd 此时状态变为了可读</li>
+<li>我们从系统的缓冲区中读取 1 byte 的内容，并做了一些业务操作</li>
+<li>进入到新的一次事件循环，等待系统下一次唤醒</li>
+<li>系统继续唤醒我们的应用，因为缓冲区还有未读取的 4 bytes 内容</li>
+</ul>
+<p><strong>如果是边缘触发：</strong></p>
+<ul>
+<li>我们的应用会被系统唤醒，因为 fd 此时状态变为了可读</li>
+<li>我们从系统的缓冲区中读取 1 byte 的内容，并做了一些业务操作</li>
+<li>进入到新的一次事件循环，等待系统下一次唤醒</li>
+<li>此时系统并不会唤醒我们的应用，直到下一次客户端发送了一些内容，比如发送了 2 bytes（因为直到下一次客户端发送了请求之前，fd 的状态并没有改变，所以在边缘触发下系统不会唤醒应用）</li>
+<li>系统唤醒我们的应用，此时缓冲区有 6 bytes &#x3D; (4 + 2) bytes</li>
+</ul>
+<p><strong>对此场景下两种触发模式的理解：</strong><br>水平触发，因为已经是可读状态，所以它会一直触发，直到我们读完缓冲区，且系统缓冲区没有新的客户端发送的内容；<br>边缘触发，对应的是<strong>状态的变化</strong>，每次有新的客户端发送内容，都会设置可读状态，因此只会在这个时机触发。</p>
+<h2 id="epoll的局限性"><a href="#epoll的局限性" class="headerlink" title="epoll的局限性"></a>epoll的局限性</h2><p>epoll 并不能够作用在所有的 IO 操作上，比如文件的读写操作，就无法享受到 epoll 的便利性。<br>所以在实现异步操作框架时，一般会混合多种非阻塞手段：</p>
+<ul>
+<li>将各种操作系统上的类似 epoll 的系统调用（比如 Unix 上的 kqueue 和 Windows 上的 IOCP）抽象出统一的 API（内部 API）</li>
+<li>对于可以利用系统调用的 IO 操作，优先使用统一后的 API</li>
+<li>对于不支持或者支持度不够的 IO 操作，使用线程池（Thread pool）的方式模拟出异步 API</li>
+<li>最后，将上面的细节封装在内部，对外提供统一的 API</li>
+</ul>
+<h1 id="框架逻辑结构"><a href="#框架逻辑结构" class="headerlink" title="框架逻辑结构"></a>框架逻辑结构</h1><h2 id="基础代码示例"><a href="#基础代码示例" class="headerlink" title="基础代码示例"></a>基础代码示例</h2><p>这个是一个异步事件框架的基本骨架，很重要。<br>主体就是一个while循环，内部依次处理了timer，pending，idle，prepare，io_poll，check，closing的队列事件，这个先后顺序也表示了这些事件的优先级。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_run</span><span class="params">(<span class="type">uv_loop_t</span>* loop, uv_run_mode mode)</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> timeout;</span><br><span class="line">  <span class="type">int</span> r;</span><br><span class="line">  <span class="type">int</span> ran_pending;</span><br><span class="line"></span><br><span class="line">  r = <span class="built_in">uv__loop_alive</span>(loop);</span><br><span class="line">  <span class="keyword">if</span> (!r) <span class="built_in">uv__update_time</span>(loop);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 是循环，没错了</span></span><br><span class="line">  <span class="keyword">while</span> (r != <span class="number">0</span> &amp;&amp; loop-&gt;stop_flag == <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">uv__update_time</span>(loop);</span><br><span class="line">    <span class="comment">// 处理 timer 队列</span></span><br><span class="line">    <span class="built_in">uv__run_timers</span>(loop);</span><br><span class="line">    <span class="comment">// 处理 pending 队列</span></span><br><span class="line">    ran_pending = <span class="built_in">uv__run_pending</span>(loop);</span><br><span class="line">    <span class="comment">// 处理 idle 队列</span></span><br><span class="line">    <span class="built_in">uv__run_idle</span>(loop);</span><br><span class="line">    <span class="comment">// 处理 prepare 队列</span></span><br><span class="line">    <span class="built_in">uv__run_prepare</span>(loop);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行 io_poll</span></span><br><span class="line">    <span class="built_in">uv__io_poll</span>(loop, timeout);</span><br><span class="line">    <span class="built_in">uv__metrics_update_idle_time</span>(loop);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行 check 队列</span></span><br><span class="line">    <span class="built_in">uv__run_check</span>(loop);</span><br><span class="line">    <span class="comment">// 执行 closing 队列</span></span><br><span class="line">    <span class="built_in">uv__run_closing_handles</span>(loop);</span><br><span class="line"></span><br><span class="line">    r = <span class="built_in">uv__loop_alive</span>(loop);</span><br><span class="line">    <span class="keyword">if</span> (mode == UV_RUN_ONCE || mode == UV_RUN_NOWAIT) <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="抽象的操作概念"><a href="#抽象的操作概念" class="headerlink" title="抽象的操作概念"></a>抽象的操作概念</h2><p>event-loop中存在一些操作的抽象概念，通过分析他们的api对他们的抽象进行一个简述。</p>
+<h3 id="Handle"><a href="#Handle" class="headerlink" title="Handle"></a>Handle</h3><p>Handle表示需要长期存在的操作，Request表示只需要短暂存在的操作，有着不同的使用方式。<br><strong>handle的API如下：</strong><br>因为是长期存在的操作，所以基本上会拥有三个步骤：初始化&#x2F;开始&#x2F;停止。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// IO 操作</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_poll_init_socket</span><span class="params">(<span class="type">uv_loop_t</span>* loop, <span class="type">uv_poll_t</span>* handle, <span class="type">uv_os_sock_t</span> socket)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_poll_start</span><span class="params">(<span class="type">uv_poll_t</span>* handle, <span class="type">int</span> events, uv_poll_cb cb)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_poll_stop</span><span class="params">(<span class="type">uv_poll_t</span>* poll)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// timer</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_timer_init</span><span class="params">(<span class="type">uv_loop_t</span>* loop, <span class="type">uv_timer_t</span>* handle)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_timer_start</span><span class="params">(<span class="type">uv_timer_t</span>* handle, uv_timer_cb cb, <span class="type">uint64_t</span> timeout, <span class="type">uint64_t</span> repeat)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_timer_stop</span><span class="params">(<span class="type">uv_timer_t</span>* handle)</span></span>;</span><br></pre></td></tr></table></figure>
+<h3 id="Requet"><a href="#Requet" class="headerlink" title="Requet"></a>Requet</h3><p><strong>request的API如下：</strong><br>requst是个短暂操作，交互形式本质是个请求，提交请求则返回结果。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_getaddrinfo</span></span></span><br><span class="line"><span class="function"><span class="params">(<span class="type">uv_loop_t</span>* loop, <span class="type">uv_getaddrinfo_t</span>* req, uv_getaddrinfo_cb getaddrinfo_cb, <span class="comment">/* ... */</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+<h3 id="联系"><a href="#联系" class="headerlink" title="联系"></a>联系</h3><p> Handle 和 Request 两者不是互斥的概念，Handle 内部实现可能也用到了 Request。因为一些宏观来看的长期操作，在每个时间切片内是可以看成是 Request 的，比如我们处理一个请求，可以看成是一个 Handle，而在当次的请求中，我们很可能会做一些读取和写入的操作，这些操作就可以看成是 Request。</p>
+<h2 id="不同的回调队列"><a href="#不同的回调队列" class="headerlink" title="不同的回调队列"></a>不同的回调队列</h2><h3 id="timer"><a href="#timer" class="headerlink" title="timer"></a>timer</h3><p>timer存在以下三个API：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_timer_init</span><span class="params">(<span class="type">uv_loop_t</span>* loop, <span class="type">uv_timer_t</span>* handle)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_timer_start</span><span class="params">(<span class="type">uv_timer_t</span>* handle, uv_timer_cb cb, <span class="type">uint64_t</span> timeout, <span class="type">uint64_t</span> repeat)</span></span>;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_timer_stop</span><span class="params">(<span class="type">uv_timer_t</span>* handle)</span></span>;</span><br></pre></td></tr></table></figure>
+<h4 id="init"><a href="#init" class="headerlink" title="init"></a>init</h4><p>init没有什么特殊的地方，只是出初始了一下handle并将handle添加到了队列里。</p>
+<h4 id="start"><a href="#start" class="headerlink" title="start"></a>start</h4><p>start内部做了如下的一些工作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_timer_start</span><span class="params">(<span class="type">uv_timer_t</span>* handle,</span></span></span><br><span class="line"><span class="params"><span class="function">                   uv_timer_cb cb,</span></span></span><br><span class="line"><span class="params"><span class="function">                   <span class="type">uint64_t</span> timeout,</span></span></span><br><span class="line"><span class="params"><span class="function">                   <span class="type">uint64_t</span> repeat)</span> </span>&#123;</span><br><span class="line">  <span class="type">uint64_t</span> clamped_timeout;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// loop-&gt;time 表示 loop 当前的时间。loop 每次迭代开始时，会用当次时间更新该值</span></span><br><span class="line">  <span class="comment">// clamped_timeout 就是该 timer 未来超时的时间点，这里直接计算好，这样未来就不需要</span></span><br><span class="line">  <span class="comment">// 计算了，直接从 timers 中取符合条件的即可</span></span><br><span class="line">  <span class="keyword">if</span> (clamped_timeout &lt; timeout)</span><br><span class="line">    clamped_timeout = (<span class="type">uint64_t</span>) <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">  handle-&gt;timer_cb = cb;</span><br><span class="line">  handle-&gt;timeout = clamped_timeout;</span><br><span class="line">  handle-&gt;repeat = repeat;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 除了预先计算好的 clamped_timeout 以外，未来当 clamped_timeout 相同时，使用这里的</span></span><br><span class="line">  <span class="comment">//自增 start_id 作为比较条件来觉得 handle 的执行先后顺序</span></span><br><span class="line">  handle-&gt;start_id = handle-&gt;loop-&gt;timer_counter++;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将 handle 插入到 timer_heap 中，这里的 heap 是 binary min heap，所以根节点就是</span></span><br><span class="line">  <span class="comment">// clamped_timeout 值（或者 start_id）最小的 handle</span></span><br><span class="line">  <span class="built_in">heap_insert</span>(<span class="built_in">timer_heap</span>(handle-&gt;loop),</span><br><span class="line">              (<span class="keyword">struct</span> heap_node*) &amp;handle-&gt;heap_node,</span><br><span class="line">              timer_less_than);</span><br><span class="line">  <span class="comment">// 设置 handle 的开始状态</span></span><br><span class="line">  <span class="built_in">uv__handle_start</span>(handle);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="stop"><a href="#stop" class="headerlink" title="stop"></a>stop</h4><p>stop内部做了如下的一些工作：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_timer_stop</span><span class="params">(<span class="type">uv_timer_t</span>* handle)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">uv__is_active</span>(handle))</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将 handle 移出 timer_heap，和 heap_insert 操作一样，除了移出之外</span></span><br><span class="line">  <span class="comment">// 还会维护 timer_heap 以保障其始终是 binary min heap</span></span><br><span class="line">  <span class="built_in">heap_remove</span>(<span class="built_in">timer_heap</span>(handle-&gt;loop),</span><br><span class="line">              (<span class="keyword">struct</span> heap_node*) &amp;handle-&gt;heap_node,</span><br><span class="line">              timer_less_than);</span><br><span class="line">  <span class="comment">// 设置 handle 的状态为停止</span></span><br><span class="line">  <span class="built_in">uv__handle_stop</span>(handle);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="timers串联分析"><a href="#timers串联分析" class="headerlink" title="timers串联分析"></a>timers串联分析</h4><p>start 和 stop 其实可以粗略地概括为，往属性 loop-&gt;timer_heap 中插入或者移出 handle，并且这个timer_heap 使用 binary min heap 的数据结构。<br><strong>整个timers的启动：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">uv__run_timers</span><span class="params">(<span class="type">uv_loop_t</span>* loop)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">heap_node</span>* heap_node;</span><br><span class="line">  <span class="type">uv_timer_t</span>* handle;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">    <span class="comment">// 取根节点，该值保证始终是所有待执行的 handle中，最先超时的那一个</span></span><br><span class="line">    heap_node = <span class="built_in">heap_min</span>(<span class="built_in">timer_heap</span>(loop));</span><br><span class="line">    <span class="keyword">if</span> (heap_node == <span class="literal">NULL</span>)</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    handle = <span class="built_in">container_of</span>(heap_node, <span class="type">uv_timer_t</span>, heap_node);</span><br><span class="line">    <span class="keyword">if</span> (handle-&gt;timeout &gt; loop-&gt;time)</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 停止、移出 handle、顺便维护 timer_heap</span></span><br><span class="line">    <span class="built_in">uv_timer_stop</span>(handle);</span><br><span class="line">    <span class="comment">// 如果是需要 repeat 的 handle，则重新加入到 timer_heap 中</span></span><br><span class="line">    <span class="comment">// 会在下一次事件循环中、由本方法继续执行</span></span><br><span class="line">    <span class="built_in">uv_timer_again</span>(handle);</span><br><span class="line">    <span class="comment">// 执行超时 handle 其对应的回调</span></span><br><span class="line">    handle-&gt;<span class="built_in">timer_cb</span>(handle);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="pending"><a href="#pending" class="headerlink" title="pending"></a>pending</h3><h4 id="pending数据结构"><a href="#pending数据结构" class="headerlink" title="pending数据结构"></a>pending数据结构</h4><p>使用了一个queue来维护handle。在libuv中，queue是一个环形结构，首尾指针都是本身。具体可以看libuv中的queue.h的头文件，不详细展开了。</p>
+<h4 id="pending串联分析"><a href="#pending串联分析" class="headerlink" title="pending串联分析"></a>pending串联分析</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="type">int</span> <span class="title">uv__run_pending</span><span class="params">(<span class="type">uv_loop_t</span>* loop)</span> </span>&#123;</span><br><span class="line">  QUEUE* q;</span><br><span class="line">  QUEUE pq;</span><br><span class="line">  <span class="type">uv__io_t</span>* w;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">QUEUE_EMPTY</span>(&amp;loop-&gt;pending_queue))</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">QUEUE_MOVE</span>(&amp;loop-&gt;pending_queue, &amp;pq);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 不断从队列中弹出元素进行操作</span></span><br><span class="line">  <span class="keyword">while</span> (!<span class="built_in">QUEUE_EMPTY</span>(&amp;pq)) &#123;</span><br><span class="line">    q = <span class="built_in">QUEUE_HEAD</span>(&amp;pq);</span><br><span class="line">    <span class="built_in">QUEUE_REMOVE</span>(q);</span><br><span class="line">    <span class="built_in">QUEUE_INIT</span>(q);</span><br><span class="line">    w = <span class="built_in">QUEUE_DATA</span>(q, <span class="type">uv__io_t</span>, pending_queue);</span><br><span class="line">    w-&gt;<span class="built_in">cb</span>(loop, w, POLLOUT);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="idle，check，prepare"><a href="#idle，check，prepare" class="headerlink" title="idle，check，prepare"></a>idle，check，prepare</h3><p>这部分感觉不重要，思想上和pending大同小异，不重点看了。</p>
+<h3 id="io-poll"><a href="#io-poll" class="headerlink" title="io poll"></a>io poll</h3><p>在libuv中，虽然把相关名字取成了poll，但是实际调用的确实是epoll。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">uv__io_poll</span><span class="params">(<span class="type">uv_loop_t</span>* loop, <span class="type">int</span> timeout)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">while</span> (!<span class="built_in">QUEUE_EMPTY</span>(&amp;loop-&gt;watcher_queue)) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="comment">// `loop-&gt;backend_fd` 是使用 `epoll_create` 创建的 epoll 实例</span></span><br><span class="line">    <span class="built_in">epoll_ctl</span>(loop-&gt;backend_fd, op, w-&gt;fd, &amp;e)</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="comment">/* ... */</span>) &#123;</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">      <span class="comment">// `epoll_wait` 和 `epoll_pwait` 只有细微的差别，所以这里只考虑前者</span></span><br><span class="line">      nfds = <span class="built_in">epoll_wait</span>(loop-&gt;backend_fd,</span><br><span class="line">                        events,</span><br><span class="line">                        <span class="built_in">ARRAY_SIZE</span>(events),</span><br><span class="line">                        timeout);</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; nfds; i++) &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    w = loop-&gt;watchers[fd];</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    w-&gt;<span class="built_in">cb</span>(loop, w, pe-&gt;events);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="timeout参数"><a href="#timeout参数" class="headerlink" title="timeout参数"></a>timeout参数</h4><p><strong>在epoll_wait中timeout参数的含义：</strong></p>
+<ul>
+<li>如果是 -1 表示一直等到有事件产生</li>
+<li>如果是 0 则立即返回，包含调用时产生的事件</li>
+<li>如果是其余整数，则以 milliseconds 为单位，规约到未来某个系统时间片内</li>
+</ul>
+<p><strong>在epoll_wait中timeout参数的获得：</strong><br>核心思想就是要尽可能的让 CPU 时间能够在事件循环的多次迭代的、多个不同任务队列的执行、中尽可能的分配均匀，避免某个类型的任务产生很高的延迟。<br> 在uv__next_timeout 实现主要分为三部分：</p>
+<ul>
+<li>只有在没有 timer 待处理的时候，才会是 -1，-1 会让后续的 uv__io_poll 进入 block 状态、完全等待事件的到达</li>
+<li>当有 timer，且有超时的 timer handle，则返回 0，这样 uv__io_poll 不会 block 住事件循环，目的是为了快速进入下一次事件循环、以执行超时的 timer</li>
+<li>当有 timer，不过都没有超时，则计算最小超时时间 diff 来作为 uv__io_poll 的阻塞时间<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv_backend_timeout</span><span class="params">(<span class="type">const</span> <span class="type">uv_loop_t</span>* loop)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 时间循环被外部停止了，所以让 `uv__io_poll` 理解返回以便尽快结束事件循环</span></span><br><span class="line">  <span class="keyword">if</span> (loop-&gt;stop_flag != <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 没有待处理的 handle 和 request，则也不需要等待了，同样让 `uv__io_poll`尽快返回</span></span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">uv__has_active_handles</span>(loop) &amp;&amp; !<span class="built_in">uv__has_active_reqs</span>(loop))</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// idle 队列不为空，也要求 `uv__io_poll` 尽快返回，这样尽快进入下一个时间循环</span></span><br><span class="line">  <span class="comment">// 否则会导致 idle 产生过高的延迟</span></span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">QUEUE_EMPTY</span>(&amp;loop-&gt;idle_handles))</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 和上一步目的一样，不过这里是换成了 pending 队列</span></span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">QUEUE_EMPTY</span>(&amp;loop-&gt;pending_queue))</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 和上一步目的一样，不过这里换成，待关闭的 handles，都是为了避免目标队列产生过高的延迟</span></span><br><span class="line">  <span class="keyword">if</span> (loop-&gt;closing_handles)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">uv__next_timeout</span>(loop);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">uv__next_timeout</span><span class="params">(<span class="type">const</span> <span class="type">uv_loop_t</span>* loop)</span> </span>&#123;</span><br><span class="line">  <span class="type">const</span> <span class="keyword">struct</span> <span class="title class_">heap_node</span>* heap_node;</span><br><span class="line">  <span class="type">const</span> <span class="type">uv_timer_t</span>* handle;</span><br><span class="line">  <span class="type">uint64_t</span> diff;</span><br><span class="line"></span><br><span class="line">  heap_node = <span class="built_in">heap_min</span>(<span class="built_in">timer_heap</span>(loop));</span><br><span class="line">  <span class="comment">// 如果没有 timer 待处理，则可以放心的 block 住，等待事件到达</span></span><br><span class="line">  <span class="keyword">if</span> (heap_node == <span class="literal">NULL</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>; <span class="comment">/* block indefinitely */</span></span><br><span class="line"></span><br><span class="line">  handle = <span class="built_in">container_of</span>(heap_node, <span class="type">uv_timer_t</span>, heap_node);</span><br><span class="line">  <span class="comment">// 有 timer，且 timer 已经到了要被执行的时间内，则需让 `uv__io_poll`</span></span><br><span class="line">  <span class="comment">// 尽快返回，以在下一个事件循环迭代内处理超时的 timer</span></span><br><span class="line">  <span class="keyword">if</span> (handle-&gt;timeout &lt;= loop-&gt;time)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 没有 timer 超时，用最小超时间减去、当前的循环时间的差值，作为超时时间</span></span><br><span class="line">  <span class="comment">// 因为在为了这个差值时间内是没有 timer 超时的，所以可以放心 block 以等待</span></span><br><span class="line">  <span class="comment">// epoll 事件</span></span><br><span class="line">  diff = handle-&gt;timeout - loop-&gt;time;</span><br><span class="line">  <span class="keyword">if</span> (diff &gt; INT_MAX)</span><br><span class="line">    diff = INT_MAX;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (<span class="type">int</span>) diff;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="thread-pool"><a href="#thread-pool" class="headerlink" title="thread pool"></a>thread pool</h3><p>在前面提到过， epoll 目前并不能处理所有的 IO 操作，对于那些 epoll 不支持的 IO 操作，需要内部的线程池来模拟出异步 IO。</p>
+<h4 id="init-1"><a href="#init-1" class="headerlink" title="init"></a>init</h4><p>通过 uv_fs_read 的内部实现，找到 uv__work_submit 方法，发现其中初始化的线程池。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">uv__work_submit</span><span class="params">(<span class="type">uv_loop_t</span>* loop,</span></span></span><br><span class="line"><span class="params"><span class="function">                     <span class="keyword">struct</span> uv__work* w,</span></span></span><br><span class="line"><span class="params"><span class="function">                     <span class="keyword">enum</span> uv__work_kind kind,</span></span></span><br><span class="line"><span class="params"><span class="function">                     <span class="type">void</span> (*work)(<span class="keyword">struct</span> uv__work* w),</span></span></span><br><span class="line"><span class="params"><span class="function">                     <span class="type">void</span> (*done)(<span class="keyword">struct</span> uv__work* w, <span class="type">int</span> status))</span> </span>&#123;</span><br><span class="line">  <span class="built_in">uv_once</span>(&amp;once, init_once);</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="built_in">post</span>(&amp;w-&gt;wq, kind);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>init_once 内部会调用 init_threads 来完成线程池初始化工作。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">uv_thread_t</span> default_threads[<span class="number">4</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">init_threads</span><span class="params">(<span class="type">void</span>)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  nthreads = <span class="built_in">ARRAY_SIZE</span>(default_threads);</span><br><span class="line">  val = <span class="built_in">getenv</span>(<span class="string">&quot;UV_THREADPOOL_SIZE&quot;</span>);</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; nthreads; i++)</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">uv_thread_create</span>(threads + i, worker, &amp;sem))</span><br><span class="line">      <span class="built_in">abort</span>();</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="post"><a href="#post" class="headerlink" title="post"></a>post</h4><p>还是uv__work_submit 方法，内部通过post函数完成任务的提交。<br>提交任务其实就是将任务插入到线程共享队列 wq，并且有空闲线程时才会通知它们工作。如果当前没有空闲进程，那么工作线程会在完成当前工作后，主动检查 wq 队列是否还有待完成的工作，有的话会继续完成，没有的话，则进入睡眠，等待下次被唤醒。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">post</span><span class="params">(QUEUE* q, <span class="keyword">enum</span> uv__work_kind kind)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">uv_mutex_lock</span>(&amp;mutex);</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="comment">// 将任务插入到 `wq` 这个线程共享的队列中</span></span><br><span class="line">  <span class="built_in">QUEUE_INSERT_TAIL</span>(&amp;wq, q);</span><br><span class="line">  <span class="comment">// 如果有空闲线程，则通知它们开始工作</span></span><br><span class="line">  <span class="keyword">if</span> (idle_threads &gt; <span class="number">0</span>)</span><br><span class="line">    <span class="built_in">uv_cond_signal</span>(&amp;cond);</span><br><span class="line">  <span class="built_in">uv_mutex_unlock</span>(&amp;mutex);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="更多逻辑"><a href="#更多逻辑" class="headerlink" title="更多逻辑"></a>更多逻辑</h4><p>线程池调度这块的实现有些复杂，这边先跳过，之后有机会再补。</p>
+<h3 id="closing"><a href="#closing" class="headerlink" title="closing"></a>closing</h3><p>通过closing队列来实现对长操作handle的关闭操作。<br>调用 uv_close 关闭handle后，libuv 会先释放其占用的资源（比如关闭 fd），随后通过调用 uv__make_close_pending 把 handle 连接到 closing_handles 队列中，该队列会在事件循环中被 uv__run_closing_handles(loop) 调用所执行。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">uv_close</span><span class="params">(<span class="type">uv_handle_t</span>* handle, uv_close_cb close_cb)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">assert</span>(!<span class="built_in">uv__is_closing</span>(handle));</span><br><span class="line"></span><br><span class="line">  handle-&gt;flags |= UV_HANDLE_CLOSING;</span><br><span class="line">  handle-&gt;close_cb = close_cb;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">switch</span> (handle-&gt;type) &#123;</span><br><span class="line">  <span class="comment">// 根据不同的 handle 类型，执行各自的资源回收工作</span></span><br><span class="line">  <span class="keyword">case</span> UV_NAMED_PIPE:</span><br><span class="line">    <span class="built_in">uv__pipe_close</span>((<span class="type">uv_pipe_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_TTY:</span><br><span class="line">    <span class="built_in">uv__stream_close</span>((<span class="type">uv_stream_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">case</span> UV_TCP:</span><br><span class="line">    <span class="built_in">uv__tcp_close</span>((<span class="type">uv_tcp_t</span>*)handle);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">default</span>:</span><br><span class="line">    <span class="built_in">assert</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 添加到 `loop-&gt;closing_handles`</span></span><br><span class="line">  <span class="built_in">uv__make_close_pending</span>(handle);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">uv__make_close_pending</span><span class="params">(<span class="type">uv_handle_t</span>* handle)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">assert</span>(handle-&gt;flags &amp; UV_HANDLE_CLOSING);</span><br><span class="line">  <span class="built_in">assert</span>(!(handle-&gt;flags &amp; UV_HANDLE_CLOSED));</span><br><span class="line">  handle-&gt;next_closing = handle-&gt;loop-&gt;closing_handles;</span><br><span class="line">  handle-&gt;loop-&gt;closing_handles = handle;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </article>
+    <!-- license -->
+    
+        <div class="license-wrapper">
+            <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
+            <p>Link：<a href="https://liaoyuanf.github.io/2024/02/05/Async-framework/">https://liaoyuanf.github.io/2024/02/05/Async-framework/</a>
+            <p>Publish date：<a href="https://liaoyuanf.github.io/2024/02/05/Async-framework/">February 5th 2024, 1:44:59 pm</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2024/02/05/Async-framework/">February 5th 2024, 1:49:03 pm</a>
+            <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2024/02/05/Sync-and-block/" title="同步与阻塞概念的区别">
+                    <div class="prevTitle">同步与阻塞概念的区别</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:liaoyuan.feng.1999@gmail.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/LiaoYuanF" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    
+        <div class="busuanzi-container">
+            
+             
+                <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+            
+        </div>
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%9E%84%E6%88%90"><span class="toc-number">1.</span> <span class="toc-text">核心构成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%82%E6%AD%A5%E5%AE%9E%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">异步实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9C%80%E8%A6%81%E9%9D%9E%E9%98%BB%E5%A1%9E%E5%8E%9F%E5%9B%A0"><span class="toc-number">2.1.</span> <span class="toc-text">需要非阻塞原因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%B8%80%EF%BC%9A%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="toc-number">2.2.</span> <span class="toc-text">解决方案一：多线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BA%8C%EF%BC%9A%E5%BC%82%E6%AD%A5"><span class="toc-number">2.3.</span> <span class="toc-text">解决方案二：异步</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%82%E6%AD%A5%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%9F%BA%E7%A1%80"><span class="toc-number">3.</span> <span class="toc-text">异步实现的基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#epoll%E7%AE%80%E4%BB%8B"><span class="toc-number">3.1.</span> <span class="toc-text">epoll简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#epoll%E6%B5%81%E7%A8%8B%E7%A4%BA%E4%BE%8B"><span class="toc-number">3.2.</span> <span class="toc-text">epoll流程示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#epoll%E7%9A%84%E8%A7%A6%E5%8F%91%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.3.</span> <span class="toc-text">epoll的触发模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8D%E8%AF%8D%E6%9D%A5%E6%BA%90"><span class="toc-number">3.3.1.</span> <span class="toc-text">名词来源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#epoll%E4%B8%AD%E8%A7%A6%E5%8F%91%E6%A8%A1%E5%BC%8F%E5%AE%9E%E4%BE%8B"><span class="toc-number">3.3.2.</span> <span class="toc-text">epoll中触发模式实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#epoll%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7"><span class="toc-number">3.4.</span> <span class="toc-text">epoll的局限性</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E9%80%BB%E8%BE%91%E7%BB%93%E6%9E%84"><span class="toc-number">4.</span> <span class="toc-text">框架逻辑结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="toc-number">4.1.</span> <span class="toc-text">基础代码示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%BD%E8%B1%A1%E7%9A%84%E6%93%8D%E4%BD%9C%E6%A6%82%E5%BF%B5"><span class="toc-number">4.2.</span> <span class="toc-text">抽象的操作概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Handle"><span class="toc-number">4.2.1.</span> <span class="toc-text">Handle</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Requet"><span class="toc-number">4.2.2.</span> <span class="toc-text">Requet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%81%94%E7%B3%BB"><span class="toc-number">4.2.3.</span> <span class="toc-text">联系</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E7%9A%84%E5%9B%9E%E8%B0%83%E9%98%9F%E5%88%97"><span class="toc-number">4.3.</span> <span class="toc-text">不同的回调队列</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#timer"><span class="toc-number">4.3.1.</span> <span class="toc-text">timer</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#init"><span class="toc-number">4.3.1.1.</span> <span class="toc-text">init</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#start"><span class="toc-number">4.3.1.2.</span> <span class="toc-text">start</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stop"><span class="toc-number">4.3.1.3.</span> <span class="toc-text">stop</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#timers%E4%B8%B2%E8%81%94%E5%88%86%E6%9E%90"><span class="toc-number">4.3.1.4.</span> <span class="toc-text">timers串联分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pending"><span class="toc-number">4.3.2.</span> <span class="toc-text">pending</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#pending%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">4.3.2.1.</span> <span class="toc-text">pending数据结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pending%E4%B8%B2%E8%81%94%E5%88%86%E6%9E%90"><span class="toc-number">4.3.2.2.</span> <span class="toc-text">pending串联分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#idle%EF%BC%8Ccheck%EF%BC%8Cprepare"><span class="toc-number">4.3.3.</span> <span class="toc-text">idle，check，prepare</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#io-poll"><span class="toc-number">4.3.4.</span> <span class="toc-text">io poll</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#timeout%E5%8F%82%E6%95%B0"><span class="toc-number">4.3.4.1.</span> <span class="toc-text">timeout参数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#thread-pool"><span class="toc-number">4.3.5.</span> <span class="toc-text">thread pool</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#init-1"><span class="toc-number">4.3.5.1.</span> <span class="toc-text">init</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#post"><span class="toc-number">4.3.5.2.</span> <span class="toc-text">post</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9B%B4%E5%A4%9A%E9%80%BB%E8%BE%91"><span class="toc-number">4.3.5.3.</span> <span class="toc-text">更多逻辑</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#closing"><span class="toc-number">4.3.6.</span> <span class="toc-text">closing</span></a></li></ol></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 11
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2024 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/05</span>
+            <a class="archive-post-title" href="/2024/02/05/Sync-and-block/">同步与阻塞概念的区别</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/05</span>
+            <a class="archive-post-title" href="/2024/02/05/Async-framework/">异步事件框架学习</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/02</span>
+            <a class="archive-post-title" href="/2024/02/02/Preformance-optimize-overview/">性能优化概述</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/02</span>
+            <a class="archive-post-title" href="/2024/02/02/Poxis-api/">共享内存（二）：POSIX Api</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/02</span>
+            <a class="archive-post-title" href="/2024/02/02/Systemv-api/">共享内存（一）：SystemV Api</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/02</span>
+            <a class="archive-post-title" href="/2024/02/02/Look-free-log/">线程安全的无锁日志</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/02</span>
+            <a class="archive-post-title" href="/2024/02/02/Refactor-project/">如何重构一个项目</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/01</span>
+            <a class="archive-post-title" href="/2024/02/01/Git-note/">Git多路Merge原理</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2023 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/28</span>
+            <a class="archive-post-title" href="/2023/12/28/Look-free-circular-queue/">线程安全的无锁循环队列</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/16</span>
+            <a class="archive-post-title" href="/2023/12/16/Chain-of-responsibility/">设计模式（一）：责任链</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/02</span>
+            <a class="archive-post-title" href="/2023/12/02/Todo-plans/">迁移计划</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="Plan">
+                <span class="iconfont-archer">&#xe606;</span>
+                Plan
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="学习杂记">
+                <span class="iconfont-archer">&#xe606;</span>
+                学习杂记
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="工具集合">
+                <span class="iconfont-archer">&#xe606;</span>
+                工具集合
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="随感杂记">
+                <span class="iconfont-archer">&#xe606;</span>
+                随感杂记
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="共享内存">
+                <span class="iconfont-archer">&#xe606;</span>
+                共享内存
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="设计模式">
+                <span class="iconfont-archer">&#xe606;</span>
+                设计模式
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="学习笔记">
+                <span class="iconfont-archer">&#xe606;</span>
+                学习笔记
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "https://liaoyuanf.github.io",
+        root: siteMetaRoot,
+        author: "Flynn"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20211217"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20211217"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+            <script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
+        
+        <!-- mermaid -->
+        
+    </body>
+</html>
