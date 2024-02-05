@@ -19,18 +19,23 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="https://liaoyuanf.github.io/page/2/index.html">
+    <meta name="description" content="目前大多数Linux下的高精度测试基本通过tsc寄存器实现的，简单记录一下可能存在的问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux下高精度测时">
+<meta property="og:url" content="https://liaoyuanf.github.io/2024/02/05/Measure-time/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="目前大多数Linux下的高精度测试基本通过tsc寄存器实现的，简单记录一下可能存在的问题。">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-02-05T07:01:25.000Z">
+<meta property="article:modified_time" content="2024-02-05T07:03:57.375Z">
 <meta property="article:author" content="Flynn">
+<meta property="article:tag" content="随感杂记">
 <meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
     
-    <title>Flynn&#39;s Studio</title>
+    <title>Linux下高精度测时 · Flynn&#39;s Studio</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -218,10 +223,10 @@
         }
     </script>
     
-        <body class="home-body">
+        <body class="post-body">
     
         <!-- header -->
-        <header class="header header-mobile index-header">
+        <header class="header header-mobile">
     <!-- top read progress line -->
     <div class="header-element">
         <div class="read-progress"></div>
@@ -249,10 +254,21 @@
     </div>
     <!-- toggle banner for post layout -->
     
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Flynn&#39;s Studio</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">Linux下高精度测时</a>
+            </div>
+        </div>
+    
 </header>
 
         <!-- fixed footer -->
-        <footer class="footer-fixed index-footer-fixed">
+        <footer class="footer-fixed">
     <!-- back to top button -->
     <div class="footer-fixed-element">
         
@@ -282,17 +298,17 @@
     <!-- 主页  -->
     
         
-    <!-- 文章页  -->
+    <!-- 404页  -->
     
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/intro/index-bg.jpg)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
             
-                Flynn's Studio
-            <!-- 文章页  -->
+                Linux下高精度测时
+            <!-- 404 -->
             
         </h1>
         <!-- 副标题 -->
@@ -300,12 +316,55 @@
             <!-- 主页副标题  -->
             
                 
-                    it's better to burn out than to fade away
-                
-            <!-- 文章页  -->
+            <!-- 404 -->
             
         </p>
         <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="随感杂记">随感杂记</a>
+    
+</div>
+
+                
+                <!-- 文章字数统计 -->
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">590</span>Reading time: <span class="post-count reading-time">2 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2024/02/05</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
         
     </div>
 </div>
@@ -435,299 +494,91 @@
 
             <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
             <div class="container container-unloaded">
-                <main class="main index-page">
-    
-        
-        
-        
-        
-            
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2024/02/01/Git-note/">
-                
-                <span class="abstract-title-text">Git多路Merge原理</span>
-            </a>
-            <div class="abstract-content">
-                <p>这篇笔记是对git使用中自动merge算法的好奇，查找了一些资料，简单做了个总结，留以存档。</p>
-            </div>
-            <!-- read more -->
-            
-                <div class="abstract-read-more-button">
-                    <a href="/2024/02/01/Git-note/">
-                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </div>
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2024/02/01">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2024/02/01</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="学习杂记">学习杂记</a>
-    
-</div>
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>目前大多数Linux下的高精度测试基本通过tsc寄存器实现的，简单记录一下可能存在的问题。</p>
+<h2 id="如何获取tsc"><a href="#如何获取tsc" class="headerlink" title="如何获取tsc"></a>如何获取tsc</h2><p>X86 平台提供读取tsc的指令 <strong>rdtsc&#x2F;rdtscp</strong> 可以用户态轻量获取tsc的值。<br>相比vsdo提供的<strong>gettimeofday</strong>更高效。</p>
+<h2 id="tsc的可靠性问题"><a href="#tsc的可靠性问题" class="headerlink" title="tsc的可靠性问题"></a>tsc的可靠性问题</h2><ul>
+<li><strong>Invariant</strong>：单核情况下的tsc受cpu动态变化的主频影响，进入某些异常状态下（C-State状态–尚未研究这个状态会发生什么）甚至会停止计数。</li>
+<li><strong>Reliable</strong>：多核情况下的tsc可能存在不同步，存在一个核间的“可视时延”（找不到准确翻译了），大致就是核间所见非所得的情况。</li>
+</ul>
+<h2 id="可靠性问题解法"><a href="#可靠性问题解法" class="headerlink" title="可靠性问题解法"></a>可靠性问题解法</h2><h3 id="单核情况下的解法"><a href="#单核情况下的解法" class="headerlink" title="单核情况下的解法"></a>单核情况下的解法</h3><p>存疑-未详细验证：intel在x86的cpu层面做出了增强，新增了两个特性</p>
+<ul>
+<li><strong>constant_tsc</strong>：含义是以固定的频率跳动，与cpu当前的频率无关。</li>
+<li><strong>nonstop_tsc</strong>：进入C-State也不会停止跳动。</li>
+</ul>
+<p>解决了单核情况下的问题，使得tsc以理想的恒定频率跳动。</p>
+<h3 id="多核架构下的解法"><a href="#多核架构下的解法" class="headerlink" title="多核架构下的解法"></a>多核架构下的解法</h3><p>Linux 内核启动时，探测tsc是否同步，采用尝试校准多个核心上的tsc以相同的频率和起始值启动运行。这通过写入MSR寄存器值来设置tsc的特性，需要cpu支持，目前仅仅intel的cpu才可能被认为是多核同步的。如果tsc经过内核测试和校准，被认为是可以核心间同步的，则会被当作时钟源来使用。<br>通过下面指令来确定时钟源：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cat /sys/devices/system/clocksource/clocksource0/current_clocksource</span><br></pre></td></tr></table></figure>
+<h1 id="TSCNS代码的解读"><a href="#TSCNS代码的解读" class="headerlink" title="TSCNS代码的解读"></a>TSCNS代码的解读</h1><p>对外提供的主要接口以及实现</p>
+<h2 id="init"><a href="#init" class="headerlink" title="init"></a>init</h2><p>初始化数据<br>void init(int64_t init_calibrate_ns, int64_t calibrate_interval_ns)<br>双参数可设置，用以确定初始校准等待时间和校准间隔时间 </p>
+<h2 id="getTscGhz"><a href="#getTscGhz" class="headerlink" title="getTscGhz"></a>getTscGhz</h2><p>通过算数运算计算CPU主频<br>算数计算公式<br>expected_err_at_next_calibration &#x3D; ns_err + (ns_err - last_ns_err) &#x2F; (ns - last_ns) * calibate_interval_ns;<br>new_ns_per_tsc &#x3D;ns_per_tsc * (1.0 - expected_err_at_next_calibration &#x2F; calibate_interval_ns)<br>TscGhz &#x3D; 1.0 &#x2F; new_ns_per_tsc </p>
+<h2 id="calibrate"><a href="#calibrate" class="headerlink" title="calibrate"></a>calibrate</h2><p>The calibrate() function is non-blocking and cheap to call but not thread-safe, so user should have only one thread calling it. The calibrations will adjust tsc frequency in the library to trace that of the system clock and keep timestamp divergence in a minimum level.</p>
+<h2 id="rdns"><a href="#rdns" class="headerlink" title="rdns"></a>rdns</h2><p>Getting nanosecond timestamp in a single step.</p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul>
+<li><a target="_blank" rel="noopener" href="http://oliveryang.net/2015/09/pitfalls-of-TSC-usage/#32-software-tsc-usage-bugs">http://oliveryang.net/2015/09/pitfalls-of-TSC-usage/#32-software-tsc-usage-bugs</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/MengRao/tscns">https://github.com/MengRao/tscns</a></li>
+</ul>
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
+    </article>
+    <!-- license -->
     
-        
-        
-        
-        
-            
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2023/12/28/Look-free-circular-queue/">
-                
-                <span class="abstract-title-text">线程安全的无锁循环队列</span>
-            </a>
-            <div class="abstract-content">
-                <p>想要探寻一下和ChatGpt的合作开发模式，因此尝试能否单纯依靠prompt进行修正，由Gpt来实现一个具有一定复杂度的循环队列。</p>
-            </div>
-            <!-- read more -->
-            
-                <div class="abstract-read-more-button">
-                    <a href="/2023/12/28/Look-free-circular-queue/">
-                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </div>
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2024/02/02">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2023/12/28</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
+        <div class="license-wrapper">
+            <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
+            <p>Link：<a href="https://liaoyuanf.github.io/2024/02/05/Measure-time/">https://liaoyuanf.github.io/2024/02/05/Measure-time/</a>
+            <p>Publish date：<a href="https://liaoyuanf.github.io/2024/02/05/Measure-time/">February 5th 2024, 3:01:25 pm</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2024/02/05/Measure-time/">February 5th 2024, 3:03:57 pm</a>
+            <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
     
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2024/02/05/Preformance-optimize-2/" title="性能优化（二）：交易系统">
+                    <div class="prevTitle">性能优化（二）：交易系统</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
     
-        <a class="post-tag" href="javascript:void(0);" data-tags="工具集合">工具集合</a>
-    
-</div>
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2023/12/16/Chain-of-responsibility/">
-                
-                <span class="abstract-title-text">设计模式（一）：责任链</span>
-            </a>
-            <div class="abstract-content">
-                <p>责任链模式是一种将请求沿着处理者链依次进行发送的设计模式。系统收到请求后，在链上的每个处理者均可对请求进行处理，或将其传递给链上的下个处理者。每个处理者都作为链上一个可活动的节点，使得责任链模式相较于if-else的分支语句，具有了更好的灵活性和扩展性。</p>
-            </div>
-            <!-- read more -->
-            
-                <div class="abstract-read-more-button">
-                    <a href="/2023/12/16/Chain-of-responsibility/">
-                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </div>
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2024/02/02">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2023/12/16</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="设计模式">设计模式</a>
-    
-</div>
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
             
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2023/12/02/Todo-plans/">
-                
-                <span class="abstract-title-text">迁移计划</span>
-            </a>
-            <div class="abstract-content">
-                <p>由于原本在云服务器上的个人博客的停用，接下来一段时间，计划把过往一段时间时间所产出的文章进行整理和迁移。我计划的迁移内容大致分为以下几个模块：</p>
-            </div>
-            <!-- read more -->
-            
-                <div class="abstract-read-more-button">
-                    <a href="/2023/12/02/Todo-plans/">
-                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </div>
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2024/01/30">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2023/12/02</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Plan">Plan</a>
-    
-</div>
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+
+        </div>
     
-    <!-- paginator  -->
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
     
-        <nav class="page-nav">
-            <a class="extend prev" rel="prev" href="/">&lt; PREV</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
-        </nav>
+    <!-- Mathjax -->
     
 </main>
 
                 <!-- profile -->
-                
-                    <div class="profile">
-    <img class="profile-avatar" alt="avatar" src= /avatar/Misaka.jpg />
-    <div class="profile-name">Flynn</div>
-    
-        <div class="profile-signature">
-            witness me
-        </div>
-    
-    
-        <div class="profile-social">
-            
-    
-        
-            
-                <a href="mailto:liaoyuan.feng.1999@gmail.com" class="iconfont-archer email" title=email ></a>
-            
-        
-    
-        
-            
-                <a href="https://github.com/LiaoYuanF" class="iconfont-archer github" target="_blank" title=github></a>
-            
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-
-
-        </div>
-    
-    
-        <div class="friends">
-            <div>
-                
-                FRIENDS
-            </div>
-            
-                
-                    <span>
-                        <a href="https://wangpengcheng.github.io/" target="_blank">JF's Blog</a>
-                    </span>
-                
-            
-                
-                    <span>
-                        <a href="https://farseerfc.me/zhs/" target="_blank">Farseerfc's Blog</a>
-                    </span>
-                
-            
-                
-                    <span>
-                        <a href="https://liam.page/" target="_blank">Liam's Blog</a>
-                    </span>
-                
-            
-                
-                    <span>
-                        <a href="https://blog.chongsheng.art/" target="_blank">ChongSheng's Blog</a>
-                    </span>
-                
-            
-        </div>
-    
-    
-        <div class="profile-link-item">
-            <a href="/about" class="about-me">
-                
-                ABOUT ME
-            </a>
-        </div>
-    
-    
-    
-</div>
-
                 
             </div>
             <footer class="footer footer-unloaded">
@@ -807,6 +658,23 @@
 
         </div>
         <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96tsc"><span class="toc-number">1.</span> <span class="toc-text">如何获取tsc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tsc%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7%E9%97%AE%E9%A2%98"><span class="toc-number">2.</span> <span class="toc-text">tsc的可靠性问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7%E9%97%AE%E9%A2%98%E8%A7%A3%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">可靠性问题解法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95%E6%A0%B8%E6%83%85%E5%86%B5%E4%B8%8B%E7%9A%84%E8%A7%A3%E6%B3%95"><span class="toc-number">3.1.</span> <span class="toc-text">单核情况下的解法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E6%A0%B8%E6%9E%B6%E6%9E%84%E4%B8%8B%E7%9A%84%E8%A7%A3%E6%B3%95"><span class="toc-number">3.2.</span> <span class="toc-text">多核架构下的解法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#TSCNS%E4%BB%A3%E7%A0%81%E7%9A%84%E8%A7%A3%E8%AF%BB"><span class="toc-number"></span> <span class="toc-text">TSCNS代码的解读</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#init"><span class="toc-number">1.</span> <span class="toc-text">init</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#getTscGhz"><span class="toc-number">2.</span> <span class="toc-text">getTscGhz</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#calibrate"><span class="toc-number">3.</span> <span class="toc-text">calibrate</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rdns"><span class="toc-number">4.</span> <span class="toc-text">rdns</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number"></span> <span class="toc-text">参考链接</span></a>
+            </div>
         
         <!-- sidebar -->
         <div class="sidebar sidebar-hide">
@@ -1180,6 +1048,8 @@
         <!-- CNZZ -->
         
         <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
         
         <!-- mermaid -->
         
