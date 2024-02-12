@@ -19,18 +19,23 @@
         <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
-    <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="https://liaoyuanf.github.io/tags/%E9%9A%8F%E6%84%9F%E6%9D%82%E8%AE%B0/index.html">
+    <meta name="description" content="在C++模板编程中，SFINAE（Substitution Failure Is Not An Error）是处理模板参数推导失败的时选择替换方案（例如控制编译器重载函数或者是进行模版特化）的一项重要机制。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="模板编程（二）：SFINAE">
+<meta property="og:url" content="https://liaoyuanf.github.io/2024/02/12/Template-programming-2/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="在C++模板编程中，SFINAE（Substitution Failure Is Not An Error）是处理模板参数推导失败的时选择替换方案（例如控制编译器重载函数或者是进行模版特化）的一项重要机制。">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-02-12T12:38:49.000Z">
+<meta property="article:modified_time" content="2024-02-12T12:41:44.398Z">
 <meta property="article:author" content="Flynn">
+<meta property="article:tag" content="模板编程">
 <meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <link rel="icon" href="/assets/favicon.ico">
     
-    <title>Flynn&#39;s Studio</title>
+    <title>模板编程（二）：SFINAE · Flynn&#39;s Studio</title>
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
 - testing support for link[rel=preload]
@@ -218,6 +223,8 @@
         }
     </script>
     
+        <body class="post-body">
+    
         <!-- header -->
         <header class="header header-mobile">
     <!-- top read progress line -->
@@ -247,6 +254,17 @@
     </div>
     <!-- toggle banner for post layout -->
     
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Flynn&#39;s Studio</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">模板编程（二）：SFINAE</a>
+            </div>
+        </div>
+    
 </header>
 
         <!-- fixed footer -->
@@ -273,24 +291,80 @@
 
 
 
+    height:50vh;
+
 ">
     
     <!-- 主页  -->
     
+        
+    <!-- 404页  -->
+    
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
+            
+                模板编程（二）：SFINAE
+            <!-- 404 -->
             
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+                
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="模板编程">模板编程</a>
+    
+</div>
+
+                
+                <!-- 文章字数统计 -->
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">953</span>Reading time: <span class="post-count reading-time">3 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2024/02/12</span>
+                    <!-- busuanzi -->
+                    
+                        <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                            <span class="iconfont-archer post-intro-busuanzi">&#xe602;</span>
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
         
     </div>
 </div>
@@ -420,181 +494,77 @@
 
             <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
             <div class="container container-unloaded">
-                <main class="main index-page">
-    
-        
-        
-        
-        
-            
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2024/02/05/Measure-time/">
-                
-                <span class="abstract-title-text">Linux下高精度测时</span>
-            </a>
-            <div class="abstract-content">
-                <p>目前大多数Linux下的高精度测试基本通过tsc寄存器实现的，简单记录一下可能存在的问题。</p>
-            </div>
-            <!-- read more -->
-            
-                <div class="abstract-read-more-button">
-                    <a href="/2024/02/05/Measure-time/">
-                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </div>
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2024/02/05">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2024/02/05</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="随感杂记">随感杂记</a>
-    
-</div>
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>在C++模板编程中，SFINAE（Substitution Failure Is Not An Error）是处理模板参数推导失败的时选择替换方案（例如控制编译器重载函数或者是进行模版特化）的一项重要机制。</p>
+<h1 id="SFINAE的原理"><a href="#SFINAE的原理" class="headerlink" title="SFINAE的原理"></a>SFINAE的原理</h1><p>SFINAE机制源于C++模板参数推导失败时的编译器行为。当编译器在实例化模板时遇到模板参数推导失败的情况时，并不会报错，而是会尝试继续寻找其他可行的实例化方式。如果找到了替代方案，则继续编译；如果找不到，则会报错。<br>它的这一行为在我的理解中，有着两方面的作用，一方面是保证编译器在泛型函数、偏特化、及一般重载函数中遴选函数原型的候选列表时不被打断；另一方面是这一个特性可以在元编程中实现部分的编译期自省和反射机制。</p>
+<h1 id="SFINAE的代码示例"><a href="#SFINAE的代码示例" class="headerlink" title="SFINAE的代码示例"></a>SFINAE的代码示例</h1><p>当编译器在实例化模板时尝试用某些类型替换模板参数时，如果替换导致了编译错误，SFINAE机制会使编译器选择另一种模板，而不是产生编译错误。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">X</span> &#123;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="type">int</span> type;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Y</span> &#123;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="type">int</span> type2;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(<span class="keyword">typename</span> T::type)</span></span>;    <span class="comment">// Foo0</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(<span class="keyword">typename</span> T::type2)</span></span>;   <span class="comment">// Foo1</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt; <span class="function"><span class="type">void</span> <span class="title">foo</span><span class="params">(T)</span></span>;                   <span class="comment">// Foo2</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">callFoo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">foo</span>&lt;X&gt;(<span class="number">5</span>);    <span class="comment">// Foo0: Succeed, Foo1: Failed,  Foo2: Failed</span></span><br><span class="line">    <span class="built_in">foo</span>&lt;Y&gt;(<span class="number">10</span>);   <span class="comment">// Foo0: Failed,  Foo1: Succeed, Foo2: Failed</span></span><br><span class="line">    <span class="built_in">foo</span>&lt;<span class="type">int</span>&gt;(<span class="number">15</span>); <span class="comment">// Foo0: Failed,  Foo1: Failed,  Foo2: Succeed</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个例子中，就展示了SFIAE机制如何选择模板进行匹配的机制，当发现某个模版难以匹配上的时候，会选择其他可匹配的模板进行匹配，由此衍生出一个问题，就是当如果有多个模板可以被匹配的情况下，编译器如何决定被匹配的优先级？<br>事实上，在模板实例化时如果有模板通例、特例加起来多个模板版本可以匹配，则依据如下规则：对版本AB，如果 A 的模板参数取值集合是B的真子集，则优先匹配 A，如果 AB 的模板参数取值集合是“交叉”关系（AB 交集不为空，且不为包含关系），则发生编译错误，对于函数模板，用函数重载分辨（overload resolution）规则和上述规则结合并优先匹配非模板函数。</p>
+<h1 id="SFINAE的应用"><a href="#SFINAE的应用" class="headerlink" title="SFINAE的应用"></a>SFINAE的应用</h1><h2 id="条件编译"><a href="#条件编译" class="headerlink" title="条件编译"></a>条件编译</h2><p>SFINAE的主要应用之一是在模板编程中实现条件编译。通过合理地设计模板参数，我们可以利用SFINAE机制来选择性地启用或禁用模板的特定实例化版本。<br>通过下面这个函数，我们借助了SFINAE机制实现了一个类模板，并借此对对象中是否有foo这一成员函数进行判断。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;iostream&gt;</span><br><span class="line"></span><br><span class="line">// 检查是否有名为foo的成员函数的函数模板</span><br><span class="line">template &lt;typename T&gt;</span><br><span class="line">class has_foo &#123;</span><br><span class="line">    // 检查是否有foo成员函数的辅助模板</span><br><span class="line">    template &lt;typename U&gt;</span><br><span class="line">    static char test(decltype(&amp;U::foo));</span><br><span class="line"></span><br><span class="line">    template &lt;typename U&gt;</span><br><span class="line">    static long test(...);</span><br><span class="line"></span><br><span class="line">public:</span><br><span class="line">    static constexpr bool value = sizeof(test&lt;T&gt;(nullptr)) == sizeof(char);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">// 示例类型</span><br><span class="line">struct A &#123;</span><br><span class="line">    void foo() &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">struct B &#123;</span><br><span class="line">    // 没有foo成员函数</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    std::cout &lt;&lt; &quot;A has foo member function: &quot; &lt;&lt; has_foo&lt;A&gt;::value &lt;&lt; std::endl; // 输出true</span><br><span class="line">    std::cout &lt;&lt; &quot;B has foo member function: &quot; &lt;&lt; has_foo&lt;B&gt;::value &lt;&lt; std::endl; // 输出false</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="模板元编程"><a href="#模板元编程" class="headerlink" title="模板元编程"></a>模板元编程</h2><p>SFINAE机制还可以在元编程中被用以实现部分的编译期自省和反射机制，这一部分会在元模板编程阶段详细展开描述。</p>
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
+    </article>
+    <!-- license -->
     
-        
-        
-        
-        
-            
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2024/02/05/Byte-order-conversion/">
-                
-                <span class="abstract-title-text">Socket中的字节序转换</span>
-            </a>
-            <div class="abstract-content">
-                <p>经常忘记几个字节序转换的api名字，顺手记一下这几个api相关以加深印象。</p>
-            </div>
-            <!-- read more -->
-            
-                <div class="abstract-read-more-button">
-                    <a href="/2024/02/05/Byte-order-conversion/">
-                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </div>
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2024/02/05">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2024/02/05</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
+        <div class="license-wrapper">
+            <p>Author：<a href="https://liaoyuanf.github.io">Flynn</a>
+            <p>Link：<a href="https://liaoyuanf.github.io/2024/02/12/Template-programming-2/">https://liaoyuanf.github.io/2024/02/12/Template-programming-2/</a>
+            <p>Publish date：<a href="https://liaoyuanf.github.io/2024/02/12/Template-programming-2/">February 12th 2024, 8:38:49 pm</a>
+            <p>Update date：<a href="https://liaoyuanf.github.io/2024/02/12/Template-programming-2/">February 12th 2024, 8:41:44 pm</a>
+            <p>License：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
     
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2024/02/12/Template-programming-3/" title="模板编程（三）：CRTP">
+                    <div class="nextTitle">模板编程（三）：CRTP</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2024/02/09/Template-programming-1/" title="模板编程（一）：特化">
+                    <div class="prevTitle">模板编程（一）：特化</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
     
-        <a class="post-tag" href="javascript:void(0);" data-tags="随感杂记">随感杂记</a>
-    
-</div>
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
-            
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2024/02/05/Sync-and-block/">
-                
-                <span class="abstract-title-text">同步与阻塞概念的区别</span>
-            </a>
-            <div class="abstract-content">
-                <p>sync&#x2F;async这组概念和block&#x2F;unblock这组概念太过于相似，以至于很多时候混用它们。虽然有过于咬文嚼字的嫌疑，但还是写一下在我的理解中他们的区别。</p>
-            </div>
-            <!-- read more -->
-            
-                <div class="abstract-read-more-button">
-                    <a href="/2024/02/05/Sync-and-block/">
-                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </div>
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2024/02/05">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2024/02/05</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="随感杂记">随感杂记</a>
-    
-</div>
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
-    
-        
-        
-        
-        
             
-            
-        
-        <article class="index-post">
-            <a class="abstract-title" href="/2023/12/02/Todo-plans/">
-                
-                <span class="abstract-title-text">迁移计划</span>
-            </a>
-            <div class="abstract-content">
-                <p>由于原本在云服务器上的个人博客的停用，接下来一段时间，计划把过往一段时间时间所产出的文章进行整理和迁移。我计划的迁移内容大致分为以下几个模块：</p>
-            </div>
-            <!-- read more -->
-            
-                <div class="abstract-read-more-button">
-                    <a href="/2023/12/02/Todo-plans/">
-                        <span style="margin-right: 0.2rem;">READ ARTICLE</span>
-                        <i class="fas fa-angle-right"></i>
-                    </a>
-                </div>
-            
-            <div class="abstract-post-meta">
-                <!-- date -->
-                <div class="abstract-date" title="Last updated: 2024/02/06">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2023/12/02</span>
-                </div>
-                <!-- tags -->
-                
-                    <div class= abstract-tags >
-    
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="随感杂记">随感杂记</a>
-    
-</div>
 
-                
-            </div>
-        </article>
-        <div class="index-post-divider"></div>
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+
+        </div>
     
-    <!-- paginator  -->
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
     
 </main>
 
@@ -678,6 +648,23 @@
 
         </div>
         <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SFINAE%E7%9A%84%E5%8E%9F%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">SFINAE的原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SFINAE%E7%9A%84%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="toc-number">2.</span> <span class="toc-text">SFINAE的代码示例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SFINAE%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">SFINAE的应用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91"><span class="toc-number">3.1.</span> <span class="toc-text">条件编译</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E5%85%83%E7%BC%96%E7%A8%8B"><span class="toc-number">3.2.</span> <span class="toc-text">模板元编程</span></a></li></ol></li></ol>
+            </div>
         
         <!-- sidebar -->
         <div class="sidebar sidebar-hide">
@@ -1110,6 +1097,8 @@
         <!-- CNZZ -->
         
         <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
         
         <!-- mermaid -->
         
